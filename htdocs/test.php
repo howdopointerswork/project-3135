@@ -10,6 +10,29 @@
 		echo "Hello!";
 	}*/
 
+
+
+	$dsn = 'mysql:host=localhost;dbname=test';
+	$username = 'mgs_user';
+	$pw = 'pa55word';
+
+	try{
+		
+		$db = new PDO($dsn, $username, $pw);
+	        echo 'Success!';	
+
+	}catch(PDOException $e){
+		
+		echo "Error";
+	}
+
+
+
+	
+
+
+
+
 ?>
 
 
