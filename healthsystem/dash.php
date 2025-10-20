@@ -1,7 +1,16 @@
 <?php
+	require('user.php');
+						
 	echo "Dashboard";
 
-	
+	if($_SESSION['username'] != null){
+
+		$u = new User(1, $username);
+		echo "<br>Hello, " . $u->getName() . "<br>";
+	}else{
+
+		echo "No session recognized";
+	}	
 
 ?>
 
