@@ -103,6 +103,9 @@
 			}
 		}
 
+	}else if($action == 'booking'){
+		
+		include('booking.php');
 	}
 
 ?>
