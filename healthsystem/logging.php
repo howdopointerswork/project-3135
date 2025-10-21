@@ -1,7 +1,4 @@
-<?php  
 
-
-?>
 
 
 <!DOCTYPE html>
@@ -21,7 +18,20 @@
 		</form>
 		
 		<h1 id="log_title">Activities</h1>
+		
+		<?php  
 
+			$activities = array();
+
+			//load here
+
+			if(empty($activities)){
+
+				echo "<p style='text-align: center; font-size: 20px;'>You have no Activities<br></p>";
+
+			}
+
+		?>	
 		
 		<div id="logging_system" style="display: none;">
 			<form method='post' action='main.php'>
@@ -41,13 +51,27 @@
 
 			</form>
 
-			<button>Cancel</button>
+			<button id="cancel">Cancel</button>
 
 			</div>
 		
 		<button id="add" name="add">Log Activity</button>
 		
-		<script>document.getElementById('add').addEventListener('click', function(){ document.getElementById('logging_system').style.display = ''; });</script>
+<script>
+
+document.getElementById('add').addEventListener('click', function(){ 
+	document.getElementById('logging_system').style.display = ''; 
+
+});
+
+document.getElementById('cancel').addEventListener('click', function(){
+
+	document.getElementById('logging_system').style.display = 'none';
+
+});
+
+
+</script>
 
 	
 	</body>
