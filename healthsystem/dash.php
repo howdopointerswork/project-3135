@@ -1,20 +1,17 @@
 <?php
 	require('user.php');
 						
-	echo "Dashboard";
 
 	if($_SESSION['username'] != null){
 
 		$u = new User(1, $username);
-		echo "<br>Hello, " . $u->getName() . "<br>";
-		//switch
-		if($action == "booking"){
-			include('booking.php');
-			exit;
-		}
-	}else{
+		echo "<br><span id='welcome'>Hello, " . $u->getName() . "</span><br>" ;
+		echo "<span id='time'>" . date('G:i a') . "</span>";
+		
 
-		echo "No session recognized";
+
+
+
 	}	
 
 ?>
@@ -26,29 +23,54 @@
 	<head>
 		<meta charset="utf-8">
 		<title>Dashboard</title>
-		<link rel="stylesheet" href="css/dash.css">
+		<link rel="stylesheet" href="css/main.css">
+		
 
 	</head>
 
 	<body>
 
-		<table>
+		<table id="menu">
 			<tr>	
 				<td>
 				<form method='post' action='main.php'>
-				<input type="submit" id="booking" name='action' value='booking'>
+				<input type="submit" class='buttons' name='action' value='Booking'>
 				</form>
 				</td>
 
-				<td><button id="logging" name="logging"><a href="logging.php">Logging</a></button></td>
-				<td><button id="search" name="search"><a href="search.php">Search</a></button></td>
+				
+				<td>
+				<form method='post' action='main.php'>
+				<input type='submit' class='buttons' name='action' value='Logging'>
+				</form>
+				</td>
+
+				<td>
+				<form method='post' action='main.php'>
+				<input type='submit' class='buttons' name='action' value="Search">
+				</form>
+				</td>
 			</tr>
 
 			<tr>
-			
-				<td><button id="monitor" name="monitor"><a href="monitor.php">Monitoring</a></button></td>
-				<td><button id="signout" name="signout"><a href="main.php">Sign Out</a></button></td>
-				<td><button id="alerts" name="alerts"><a href="alerts.php">Alerts</a></button></td>	
+					
+				<td>
+				<form method='post' action='main.php'>
+				<input type='submit' class='buttons' name='action' value='Monitoring'>
+				</form>
+				</td>
+
+				<td>
+				<form method='post' action-'main.php'>
+				<input type='submit' class='buttons' name='action' value='Sign Out'>
+				</form>
+				</td>
+
+				<td>
+				<form method='post' action='main.php'>
+				<input type='submit' class='buttons' name='action' value='Alerts'>
+				</form>
+				</td>	
 			
 
 			</tr>

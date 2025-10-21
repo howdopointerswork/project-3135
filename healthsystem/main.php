@@ -38,7 +38,7 @@
 	$user = 'mgs_user';
 	$pw = 'pa55word';
 
-	echo date("Y/m/d H:i:s") . "<br>";
+
 
 	try{
 		
@@ -49,63 +49,95 @@
 		echo "Error";
 	}
 //change to switch	
-	if($action == 'login'){
+	switch($action){
 		
+		case 'login':
 
-
-		include('login.php');
-		
-
-	}
-
-	else if($action == 'Submit'){
-		
-			
-		//action can be used to check for signups, logins, etc.
-
-		$query = 'SELECT * FROM user WHERE username = :username';
-
-		$statement = $db->prepare($query);
-
-		$statement->bindValue(':username', $username);
-
-		$statement->execute();
-
-		$name = $statement->fetch();
-	
-		if(empty($name)){
-
-			echo "<br>Sign Up";
-			include("signup.php");
+			include('login.php');
 			exit;
-			
-			//addUser($db, $username, $password);
-			
-			//testing();
 		
 
-		} else{
+	
 
+		case 'Submit':
+		
 			
-			if(authenticate($db, $username, $password)){
+			//action can be used to check for signups, logins, etc.
 
-				echo "Hello, " . $username . "<br>";
-				session_start();
-				$_SESSION['username'] = $username;
-				include("dash.php");
+			$query = 'SELECT * FROM user WHERE username = :username';
 
+			$statement = $db->prepare($query);
+
+			$statement->bindValue(':username', $username);
+
+			$statement->execute();
+
+			$name = $statement->fetch();
+	
+			if(empty($name)){
+
+				echo "<br>Sign Up";
+				include("signup.php");
 				exit;
-
-			}
-			else{
-				
-				echo "<br>Failed to log in";
-			}
-		}
-
-	}else if($action == 'booking'){
+			
+				//addUser($db, $username, $password);
+			
+				//testing();
 		
-		include('booking.php');
-	}
 
+			} else{
+
+			
+				if(authenticate($db, $username, $password)){
+
+					session_start();
+					$_SESSION['username'] = $username;
+					include("dash.php");
+
+					exit;
+
+				}
+				else{
+				
+					echo "<br>Failed to log in";
+				}
+			}
+
+
+		case 'Booking':
+
+			include("booking.php");
+			exit;
+
+		case 'Logging':
+
+			include("logging.php");
+			exit;
+		
+		case 'Search':
+
+			include("search.php");
+			exit;
+
+		case 'Monitoring':
+
+			include("monitor.php");
+			exit;
+
+		case 'Sign Out':
+
+			session_destroy();
+			include('login.php');
+			break;
+
+		case 'Alerts':
+
+			include('alerts.php');
+			exit;
+
+		case 'Back':
+
+			include('dash.php');
+			exit;
+	}
 ?>
