@@ -1,8 +1,15 @@
 
 <!DOCTYPE html>
 <?php
-//require('user.php');
-session_start();
+require_once('user.php');
+require_once('db.php');
+
+//require('db.php');
+if(session_status() === PHP_SESSION_NONE){
+	session_start();
+}
+
+include('nav.php');
 //$_SESSION['current']->getName();
 echo 'loggied in as: ' . $_SESSION['current']->getName() . "<br> and" . $_SESSION['current']->getID() . " is ID<br>";
 ?>
@@ -18,10 +25,10 @@ echo 'loggied in as: ' . $_SESSION['current']->getName() . "<br> and" . $_SESSIO
     
         
         <form method='post' action='main.php'>
-            <input type='submit' name='action' value='Back'>
+            <input type='submit' name='action' value='Back' style='font-size: 18px; padding: 0.5em;'>
         </form>
         
-        <h1 id="log_title">Activities</h1>
+        <h1 id="log_title" style="text-align: center;">Activities</h1>
         
             
         
@@ -58,23 +65,31 @@ echo 'loggied in as: ' . $_SESSION['current']->getName() . "<br> and" . $_SESSIO
         <?php
 
             $results = getActivities($db, $_SESSION['current']->getID());
-$names = ['Calories', 'Sleep', 'Water', 'Exercise', 'Medication', 'User ID', 'ID']; //remove ID
+
+	    $names = ['Calories', 'Sleep', 'Water', 'Exercise', 'Medication', 'User ID', 'ID']; //remove ID
 
 
         if(!empty($results)){
 
-            echo "<table style='border: 2px solid black; display: block; margin: 0 auto;'>";
+            echo "<table style='display: flex; justify-content: center; align-itemts: center;'>";
 
             echo "<tr>";
-
-            foreach($names as $nam){
+		
+	    echo "<td style='border: 2px solid black; text-align: center; padding: 2.5em; font-weight: bold;'>";
+	    echo "Manage";
+	    echo "</td>";
+	    
+	    foreach($names as $nam){
             
-                echo "<td style='border: 2px solid black; text-align: center; font-weight: bold;'>";
+                echo "<td style='border: 2px solid black; text-align: center; padding: 3em; font-weight: bold;'>";
 
                     echo $nam;
 
                 echo "</td>";
-            }
+	    }
+
+
+			
 
             echo "</tr>";
             //add date/time of logging
@@ -82,22 +97,29 @@ $names = ['Calories', 'Sleep', 'Water', 'Exercise', 'Medication', 'User ID', 'ID
                 
                 echo "<tr>";
 
-                
+		echo "<td style='border: 2px solid black;'>";
+
+		echo "<form method='post' method='main.php'>";
+
+		echo "<input type='submit' name='action' value='Delete Activity' style='font-size: 18px; padding: 0.5em;'>";
+		echo "<input type='hidden' name='actID' value=$result[6]>";		
+		echo "<input type='submit' name='action' value='Edit Activity' style='font-size: 18px; padding: 0.5em;'>";
+		echo "</form>";
+
+		echo "</td>";
+
                 foreach($result as $index => $val){
                      if(is_numeric($index)){
-                        echo "<td style='border: solid 2px black; padding: 2em; font-size: 18px;'>";
+                        echo "<td style='border: solid 2px black; padding: 3.5em; font-size: 18px;'>";
                         echo "$val";
-                        echo "<form method='post' name='action'>";
-                        echo "<input type='submit' name='delAct' value='Delete'>";
-                        echo "</form>";
 
                         //edit here
                         echo "</td>";
                      }
             }
                 
-
-                echo "</tr>";
+		
+		echo "</tr>";
 
             }
 

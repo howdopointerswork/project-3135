@@ -1,21 +1,12 @@
 <?php
-    require('user.php');
-                        
-    echo "Dashboard";
 
-    if($_SESSION['username'] != null){
+if(session_status() === PHP_SESSION_NONE){
+	
+	session_start();
 
-        $u = new User(1, $username);
-        echo "<br>Hello, " . $u->getName() . "<br>";
-        //switch
-        if($action == "booking"){
-            include('booking.php');
-            exit;
-        }
-    }else{
+}
 
-        echo "No session recognized";
-    }
+include ('nav.php');
 
 ?>
 
@@ -31,25 +22,39 @@
     </head>
 
     <body>
+	<h1>Hello, <?php echo $_SESSION['current']->getName();?></h1>
+	
+	<form method='post' action='main.php'>
+	<input id='prof' type='submit' name='action' value='Profile'>
+	</form>
 
-        <table>
-            <tr>
-                <td>
-                <form method='post' action='main.php'>
-                <input type="submit" id="booking" name='action' value='booking'>
-                </form>
-                </td>
+	<table>
+	    <tr>
+		<form method='post' action='main.php'>
+		<td><input type='submit' value='Booking' name='action'></td>
+		</form>
+		
+		<form method='post' action='main.php'>       
+		<td><input type='submit' value='Logging' name='action'></td>
+		</form>
 
-                <td><button id="logging" name="logging"><a href="logging.php">Logging</a></button></td>
-                <td><button id="search" name="search"><a href="search.php">Search</a></button></td>
+		<form method='post' action='main.php'>
+		<td><input type='submit' value='Search' name='action'></td>
+		</form>
             </tr>
 
             <tr>
-            
-                <td><button id="monitor" name="monitor"><a href="monitor.php">Monitoring</a></button></td>
-                <td><button id="signout" name="signout"><a href="main.php">Sign Out</a></button></td>
-                <td><button id="alerts" name="alerts"><a href="alerts.php">Alerts</a></button></td>
-            
+            	<form method='post' action='main.php'>
+		<td><input type='submit' value='Monitoring' name='action'></td>
+		</form>
+
+		<form method='post' action='main.php'>
+		<td><input type='submit' value='Sign Out' name='action'></td>
+		</form>
+		
+		<form method='post' action='main.php'>
+                <td><input type='submit' value='Alerts' name='action'></td>
+            	</form>
 
             </tr>
         </table>

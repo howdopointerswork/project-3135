@@ -1,6 +1,6 @@
 <?php
 //	require('user.php')
-	require('db.php');
+	require_once('db.php');
 	require('functions.php'); //for testing, can be ignored
 	require_once('user.php');
 	
@@ -8,7 +8,10 @@
 	ini_set('display_startup_errors', 1);
 	error_reporting(E_ALL);
 
+	if(session_status() === PHP_SESSION_NONE){
 
+		session_start();
+	}
 
 
 	$action = filter_input(INPUT_POST, 'action');
@@ -44,10 +47,12 @@
 	try{
 		
 		$db = new PDO($dsn, $user, $pw);
+		//echo "Database found<br>";
 	        
 	}catch(PDOException $e){
 		
-		echo "Error";
+		//echo "Error";
+
 	}
 //change to switch	
 	switch($action){
@@ -89,19 +94,28 @@
 			} else{
 
 				$result = authenticate($db, $username, $password);
-				if(isset($result)){
-					echo "good<br>";
+				/*if(isset($result)){
+				//	echo "good<br>";
 					echo $result[3];
-				}
+				}*/
 				if($result[3]){
 
 					session_start();
 
 					$u->setID($result[0]);
 					$u->setName($result[1]);
-					echo "ID: " . $u->getID();
+					$u->setAge($result[3]);
+					$u->setHt($result[4]);
+					$u->setWt($result[5]);
+					$u->setGender($result[6]);
+					$u->setImg($result[7]);
+				//	echo "ID: " . $u->getID();
 
 					$_SESSION['current'] = $u;
+					$_SESSION['activities'] = getActivities($db, $_SESSION['current']->getID());
+					if(empty($_SESSION['activities'])){
+						echo "error";
+					}
 					include("dash.php");
 
 					exit;
@@ -120,6 +134,7 @@
 			exit;
 
 		case 'Logging':
+		//	$_SESSION['activities'] = getActivities($db, $_SESSION['current']->getID());
 			
 			include("logging.php");
 			exit;
@@ -145,6 +160,11 @@
 			include('alerts.php');
 			exit;
 
+		case 'Dashboard':
+
+			include('dash.php');
+			exit;
+
 		case 'Back':
 
 			include('dash.php');
@@ -168,5 +188,95 @@
 			}*/
 
 			addActivity($db, $values);
+			break;
+
+		case 'Delete Activity':
+			
+			$actID = filter_input(INPUT_POST, 'actID');
+			deleteActivity($db, $actID);
+			
+			include('logging.php');
+			exit;
+			
+		
+		case 'Edit Activity':
+
+			$actID = filter_input(INPUT_POST, 'actID');
+			$activity = getActivity($db, $actID);
+
+			include('editactivity.php');
+			exit;
+
+
+	        case 'Update Activity':
+			
+			$data = filter_input(INPUT_POST, 'data', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+			$actID = filter_input(INPUT_POST, 'actID');
+
+			updateActivity($db, $data, $actID);
+
+			include('logging.php');
+			exit;
+
+
+		case 'Profile':
+
+			include('profile.php');
+			exit;
+
+		case 'Save':
+			
+			$vals = [];
+
+			$vals[] = filter_input(INPUT_POST, 'Username');
+			$vals[] = filter_input(INPUT_POST, 'Age');
+			$vals[] = filter_input(INPUT_POST, 'Height');
+			$vals[] = filter_input(INPUT_POST, 'Weight');
+			$vals[] = filter_input(INPUT_POST, 'Gender');
+
+			foreach($vals as $i => $val){
+
+				if(empty($val)){
+
+					switch($i){
+				
+						case 0:
+							$vals[$i] = $_SESSION['current']->getName();
+							break;
+						case 1:
+							$vals[$i] = $_SESSION['current']->getAge();
+							break;
+						case 2:
+							$vals[$i] = $_SESSION['current']->getHt();
+							break;
+						case 3:
+
+							$vals[$i] = $_SESSION['current']->getWt();
+							break;
+						case 4:
+
+							$vals[$i] = $_SESSION['current']->getGender();
+							break;
+
+					}
+				}
+			}
+			
+			
+
+			$_SESSION['current']->setName($vals[0]);
+			$_SESSION['current']->setAge($vals[1]);
+			$_SESSION['current']->setHt((float) $vals[2]);
+			$_SESSION['current']->setWt((float) $vals[3]);
+			$_SESSION['current']->setGender($vals[4]);
+			
+			updateProfile($db, $_SESSION['current']->getID(), $vals);
+
+			include('profile.php');
+			exit;
+			
+
+			
+
 	}
 ?>

@@ -2,6 +2,7 @@ body{
 
 	text-align: center;
 	font-size: 20px;
+	background-color: #b5b5b5;	
 
 }
 
@@ -25,9 +26,25 @@ table{
 	
 	td{
 
-		border: 2px solid black;
+	/*	border: 2px solid black;*/
+		
+		/*font-size: 18px;*/
+
+		input{
+
+			font-size: 18px;
+			padding: 1em;
+			margin: 3em;
+			
+		}
 	}
 		
 }
 
 
+
+#prof{
+
+	font-size: 18px;
+	padding: 1em;
+}

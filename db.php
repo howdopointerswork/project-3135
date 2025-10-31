@@ -35,7 +35,7 @@
         //check if empty first
     
         if($result[2] == $password){
-    
+    	    
             $result[] = true;
             return $result;
         }
@@ -96,6 +96,87 @@
 
     }
 
+
+    function deleteActivity($db, $id){
+
+	$qry = 'DELETE FROM logging WHERE id = :id';
+
+	$stmnt = $db->prepare($qry);
+	
+	$stmnt->bindValue(':id', $id);
+
+	$stmnt->execute();
+
+    }
+
+    function getActivity($db, $id){
+
+	$qry = 'SELECT * FROM logging WHERE id = :id';
+
+	$stmnt = $db->prepare($qry);
+
+	$stmnt->bindValue(':id', $id);
+
+	$stmnt->execute();
+
+	return $stmnt->fetch();
+
+    }
+
+    
+    function updateActivity($db, $data, $id){
+
+	    $qry = 'UPDATE logging SET 
+		    calories = :calories,
+		    sleep = :sleep,
+		    water = :water,
+		    exercise = :exercise,
+		    meds = :meds
+		    WHERE id = :id';
+
+	    $stmnt = $db->prepare($qry);
+
+	    $stmnt->bindValue(':calories', $data[0]);
+	    $stmnt->bindValue(':sleep', $data[1]);
+	    $stmnt->bindValue(':water', $data[2]);
+	    $stmnt->bindValue(':exercise', $data[3]);
+	    $stmnt->bindValue(':meds', $data[4]);
+
+	    $stmnt->bindValue(':id', $id);
+
+	    $stmnt->execute();
+
+
+    }
+
+
+
+	function updateProfile($db, $id, $vals){
+
+		//add img
+		$qry = 'UPDATE user SET
+		        username = :username,	
+			age = :age,
+			height = :height,
+			weight = :weight,
+			gender = :gender
+			WHERE user_id = :id';
+
+		$stmnt = $db->prepare($qry);
+
+		$stmnt->bindValue(':username', $vals[0]);
+		$stmnt->bindValue(':age', $vals[1]);
+		$stmnt->bindValue(':height', (float) $vals[2]);
+		$stmnt->bindValue(':weight', (float) $vals[3]);
+		$stmnt->bindValue(':gender', $vals[4]);
+		$stmnt->bindValue(':id', $id);
+	
+		
+		$stmnt->execute();
+
+
+		
+	}
     
 
 ?>
