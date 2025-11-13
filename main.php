@@ -1,196 +1,403 @@
 <?php
-require_once('db.php');
-require('functions.php');               // for testing – can be ignored
-require_once('user.php');
+//	require('user.php')
+	require_once('db.php');
+	require('functions.php'); //for testing, can be ignored
+	require_once('user.php');
+	require_once('alerts.php');
+	
+	ini_set('display_errors', 1);
+	ini_set('display_startup_errors', 1);
+	error_reporting(E_ALL);
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+	if(session_status() === PHP_SESSION_NONE){
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+		session_start();
+	}
 
-/* --------------------------------------------------------------
-   GET ACTION
-   -------------------------------------------------------------- */
-$action = filter_input(INPUT_POST, 'action');
-if ($action === null) {
-    $action = filter_input(INPUT_GET, 'action');
-    if ($action === null) {
-        $action = 'login';
-    }
-}
+	
+	if(!isset($_SESSION['date'])){
 
-/* --------------------------------------------------------------
-   DB CONNECTION
-   -------------------------------------------------------------- */
-$dsn = 'mysql:host=127.0.0.1;dbname=health_system';
-$user = 'mgs_user';
-$pw   = 'pa55word';
+		$_SESSION['date'] = date('Y-m-d');
+	}
 
-$u = new User();                     // user object
+	if(!isset($_SESSION['alerts'])){
 
-try {
-    $db = new PDO($dsn, $user, $pw);
-    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch (PDOException $e) {
-    die('Database connection failed');
-}
+		$_SESSION['alerts'] = new AlertSystem();
+	}
 
-/* --------------------------------------------------------------
-   SWITCH
-   -------------------------------------------------------------- */
-switch ($action) {
+	if(!isset($_SESSION['page'])){
 
-    /* -------------------- LOGIN / SIGNUP -------------------- */
-    case 'login':
-        include('login.php');
-        exit;
+		$_SESSION['page'] = 'main.php';
 
-    case 'Submit':
-        $username = filter_input(INPUT_POST, 'username');
-        $password = filter_input(INPUT_POST, 'password');
+	}
 
-        $stmt = $db->prepare('SELECT * FROM user WHERE username = :username');
-        $stmt->execute([':username' => $username]);
-        $row = $stmt->fetch();
+		
+	
+	
+	
+	$action = filter_input(INPUT_POST, 'action');
+	if($action == NULL){
 
-        if (!$row) {
-            // New user – show signup
-            include('signup.php');
-            exit;
-        }
+		$action = filter_input(INPUT_GET, 'action');
+		if($action == NULL){
 
-        $result = authenticate($db, $username, $password);
-        if ($result[3]) {                 // password correct
-            $u->setID($result[0]);
-            $u->setName($result[1]);
-            $u->setAge($result[3]);
-            $u->setHt($result[4]);
-            $u->setWt($result[5]);
-            $u->setGender($result[6]);
-            $u->setImg($result[7] ?? '');
+			$action = 'login';
+		}
+	}
 
-            $_SESSION['current'] = $u;
-            $_SESSION['activities'] = getActivities($db, $u->getID());
 
-            include('dash.php');
-            exit;
-        } else {
-            echo '<p style="color:red;">Invalid password</p>';
-            include('login.php');
-            exit;
-        }
-        break;
 
-    /* -------------------- NAVIGATION -------------------- */
-    case 'Booking':
-        include('booking.php');
-        exit;
+	$username = filter_input(INPUT_POST, 'username');
+	$password = filter_input(INPUT_POST, 'password');
+			
+/*	if($fname != ""){
+		echo "Hello, " . htmlspecialchars($fname) . " " . htmlspecialchars($lname) . "!<br>";
+	}
+	else{
 
-    case 'Logging':
-        include('logging.php');
-        exit;
+		echo "Hello!";
+	}*/
 
-    case 'Search':
-        include('search.php');
-        exit;
 
-    case 'Monitoring':
-        include('monitor.php');
-        exit;
 
-    case 'Sign Out':
-        session_destroy();
-        include('login.php');
-        exit;
+	$dsn = 'mysql:host=127.0.0.1;dbname=health_system_final';
+	$user = 'mgs_user';
+	$pw = 'pa55word';
 
-    case 'Alerts':
-        include('alerts.php');
-        exit;
+	$u = new User(); //user var
+	
 
-    case 'Dashboard':
-    case 'Back':
-        include('dash.php');
-        exit;
 
-    /* -------------------- LOGGING ACTIONS -------------------- */
-    case 'Add Activity':
-        $values = [
-            filter_input(INPUT_POST, 'calories'),
-            filter_input(INPUT_POST, 'sleep'),
-            filter_input(INPUT_POST, 'water'),
-            filter_input(INPUT_POST, 'exercise'),
-            filter_input(INPUT_POST, 'meds'),
-            filter_input(INPUT_POST, 'userid', FILTER_VALIDATE_INT)
-        ];
-        addActivity($db, $values);
-        include('logging.php');
-        exit;
+	try{
+		
+		$db = new PDO($dsn, $user, $pw);
+		//echo "Database found<br>";
+	        
+	}catch(PDOException $e){
+		
+		//echo "Error";
 
-    case 'Delete Activity':
-        $actID = filter_input(INPUT_POST, 'actID', FILTER_VALIDATE_INT);
-        if ($actID) deleteActivity($db, $actID);
-        include('logging.php');
-        exit;
+	}
+//change to switch	
+	switch($action){
+		
+		case 'login':
+			$_SESSION['page'] = 'login.php';
+			include('login.php');
+			exit;
+		
 
-    case 'Edit Activity':
-        $actID = filter_input(INPUT_POST, 'actID', FILTER_VALIDATE_INT);
-        if ($actID) {
-            $activity = getActivity($db, $actID);
-            include('editactivity.php');
-        } else {
-            include('logging.php');
-        }
-        exit;
+	
 
-    case 'Update Activity':
-        $data  = filter_input(INPUT_POST, 'data', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-        $actID = filter_input(INPUT_POST, 'actID', FILTER_VALIDATE_INT);
-        if ($data && $actID) updateActivity($db, $data, $actID);
-        include('logging.php');
-        exit;
+		case 'Submit':
+		
+			
+			//action can be used to check for signups, logins, etc.
 
-    /* -------------------- PROFILE -------------------- */
-    case 'Profile':
-        include('profile.php');
-        exit;
+			$query = 'SELECT * FROM user WHERE username = :username';
 
-    case 'Save':
-        $vals = [
-            filter_input(INPUT_POST, 'Username'),
-            filter_input(INPUT_POST, 'Age'),
-            filter_input(INPUT_POST, 'Height'),
-            filter_input(INPUT_POST, 'Weight'),
-            filter_input(INPUT_POST, 'Gender')
-        ];
+			$statement = $db->prepare($query);
 
-        foreach ($vals as $i => $val) {
-            if (empty($val)) {
-                switch ($i) {
-                    case 0: $vals[$i] = $_SESSION['current']->getName(); break;
-                    case 1: $vals[$i] = $_SESSION['current']->getAge(); break;
-                    case 2: $vals[$i] = $_SESSION['current']->getHt(); break;
-                    case 3: $vals[$i] = $_SESSION['current']->getWt(); break;
-                    case 4: $vals[$i] = $_SESSION['current']->getGender(); break;
-                }
-            }
-        }
+			$statement->bindValue(':username', $username);
 
-        $_SESSION['current']->setName($vals[0]);
-        $_SESSION['current']->setAge($vals[1]);
-        $_SESSION['current']->setHt((float)$vals[2]);
-        $_SESSION['current']->setWt((float)$vals[3]);
-        $_SESSION['current']->setGender($vals[4]);
+			$statement->execute();
 
-        updateProfile($db, $_SESSION['current']->getID(), $vals);
-        include('profile.php');
-        exit;
+			$name = $statement->fetch();
+	
+			if(empty($name)){
 
-    /* -------------------- BOOKING ACTIONS -------------------- */
+				echo "<br>Sign Up";
+				include("signup.php");
+				exit;
+			
+				//addUser($db, $username, $password);
+			
+				//testing();
+		
 
-    case 'Add Booking':
+			} else{
+
+				$result = authenticate($db, $username, $password);
+				if(isset($result)){
+				//	echo "good<br>";
+					echo $result[3];
+				}
+				if($result[3]){
+
+					if(session_status() === PHP_SESSION_NONE){
+						session_start();
+					}
+
+					$u->setID($result[0]);
+					$u->setName($result[1]);
+					$u->setAge($result[3]);
+					$u->setHt($result[4]);
+					$u->setWt($result[5]);
+					$u->setGender($result[6]);
+					$u->setImg($result[7]);
+				//	echo "ID: " . $u->getID();
+
+					$_SESSION['current'] = $u;
+					$_SESSION['activities'] = getActivities($db, $_SESSION['current']->getID());
+
+
+					if(empty($_SESSION['activities'])){
+						echo "error";
+					}else{
+
+						if($_SESSION['activities'][count($_SESSION['activities'])-1] != $_SESSION['date']){
+
+						//	echo 'logging alert<br>';
+							$time1 = new DateTime($_SESSION['date']);
+							$time2 = new DateTime($_SESSION['activities'][count($_SESSION['activities'])-1][7]);		
+							//use constructor
+							$diff = $time1->diff($time2);
+							$alert = new Alert();
+							$alert->setCategory(2);
+							$alert->setStatus(3);
+							$alert->setCode(0);
+							$alert->setMsg("You haven't logged an activity in " . $diff->days . " day(s)!");
+							$_SESSION['alerts']->addAlert($alert);
+
+							$bookings = getBookings($db, $_SESSION['current']->getID());	
+							$recent = new DateTime($bookings[count($bookings)-1]['booking_date']);
+							$diff2 = $time1->diff($recent);
+							$when = '';
+							$tense = 'in';
+
+							if($recent < $time1){
+								$when = 'ago';
+								$tense = 'was';
+							}else{
+								echo 'nope';
+							}
+							
+
+							$alert2 = new Alert();
+							$alert2->setCategory(3);
+							$alert2->setStatus(1);
+							$alert2->setCode(0);
+							$alert2->setMsg("Appointment Notice: Appointment " . $tense . " " . $diff2->days . " day(s) " . $when);
+							$_SESSION['alerts']->addAlert($alert2);
+
+
+						}
+					}
+					$_SESSION['page'] = 'dash.php';
+					include("dash.php");
+
+					exit;
+
+				}
+				else{
+				
+					echo "<br>Failed to log in";
+				}
+			}
+
+
+		case 'Booking':
+			$_SESSION['page'] = 'booking.php';
+			include("booking.php");
+			exit;
+
+		case 'Logging':
+		//	$_SESSION['activities'] = getActivities($db, $_SESSION['current']->getID());
+			
+			$_SESSION['page'] = 'logging.php';
+			include("logging.php");
+			exit;
+		
+		case 'Search':
+
+			$_SESSION['page'] = 'search.php';
+			include("search.php");
+			exit;
+
+		case 'Monitoring':
+			
+			$_SESSION['page'] = 'monitor.php';
+			include("monitor.php");
+			exit;
+
+		case 'Sign Out':
+
+			session_destroy();
+			include('login.php');
+			break;
+
+		case 'Clear':
+			$_SESSION['alerts']->clearAlerts();
+			$current = $_SESSION['page'];
+			include($current);
+			break;	
+
+
+		case 'Dashboard':
+			$_SESSION['page'] = 'dash.php';
+			include('dash.php');
+			exit;
+
+		case 'Back':
+
+			include('dash.php');
+			exit;
+
+		case 'Add Activity':
+
+			$values = [];
+
+
+			$values[] = filter_input(INPUT_POST, 'calories');
+			$values[] = filter_input(INPUT_POST, 'sleep');
+			$values[] = filter_input(INPUT_POST, 'water');
+			$values[] = filter_input(INPUT_POST, 'exercise');
+			$values[] = filter_input(INPUT_POST, 'meds');
+
+			$values[] = filter_input(INPUT_POST, 'userid', FILTER_VALIDATE_INT); 
+			/*foreach($values as $index => $val){
+
+				echo "$index: $val <br>";
+			}*/
+
+			addActivity($db, $values, $_SESSION['date']);
+			break;
+
+		case 'Delete Activity':
+			
+			$actID = filter_input(INPUT_POST, 'actID');
+			deleteActivity($db, $actID);
+			
+			include('logging.php');
+			exit;
+			
+		
+		case 'Edit Activity':
+
+			$actID = filter_input(INPUT_POST, 'actID');
+			$activity = getActivity($db, $actID);
+
+			include('editactivity.php');
+			exit;
+
+
+	        case 'Update Activity':
+			
+			$data = filter_input(INPUT_POST, 'data', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+			$actID = filter_input(INPUT_POST, 'actID');
+
+			updateActivity($db, $data, $actID);
+
+			include('logging.php');
+			exit;
+
+
+		case 'Profile':
+			$_SESSION['page'] = 'profile.php';
+			include('profile.php');
+			exit;
+
+		case 'Save':
+			
+			$vals = [];
+
+			$vals[] = filter_input(INPUT_POST, 'Username');
+			$vals[] = filter_input(INPUT_POST, 'Age');
+			$vals[] = filter_input(INPUT_POST, 'Height');
+			$vals[] = filter_input(INPUT_POST, 'Weight');
+			$vals[] = filter_input(INPUT_POST, 'Gender');
+
+			foreach($vals as $i => $val){
+
+				if(empty($val)){
+
+					switch($i){
+				
+						case 0:
+							$vals[$i] = $_SESSION['current']->getName();
+							break;
+						case 1:
+							$vals[$i] = $_SESSION['current']->getAge();
+							break;
+						case 2:
+							$vals[$i] = $_SESSION['current']->getHt();
+							break;
+						case 3:
+
+							$vals[$i] = $_SESSION['current']->getWt();
+							break;
+						case 4:
+
+							$vals[$i] = $_SESSION['current']->getGender();
+							break;
+
+					}
+				}
+			}
+			
+			
+
+			$_SESSION['current']->setName($vals[0]);
+			$_SESSION['current']->setAge($vals[1]);
+			$_SESSION['current']->setHt((float) $vals[2]);
+			$_SESSION['current']->setWt((float) $vals[3]);
+			$_SESSION['current']->setGender($vals[4]);
+			
+			updateProfile($db, $_SESSION['current']->getID(), $vals);
+
+			include('profile.php');
+			exit;
+			
+	
+
+		case 'Monitor': //yes this is confusing with the above case, will change eventually. Above is for Monitoring page, this is to monitor activity
+
+			$toMonitor = filter_input(INPUT_POST, 'toMonitor');
+			$threshold = filter_input(INPUT_POST, 'threshold') ?? 0;
+
+			$selected;
+
+			
+
+			switch(strtolower($toMonitor)){
+
+			case 'bmi':
+				$selected = 0;
+				break;
+
+			case 'calories':
+				$selected = 1;
+				break;
+
+			case 'sleep':
+				$selected = 2;
+				break;
+
+			case 'water':
+				$selected = 3;
+				break;
+
+			case 'exercise':
+				$selected = 4;
+				break;
+
+			case 'medication':
+				$selected = 5;
+				break;
+			}
+
+
+			if($threshold === NULL){
+				echo 'null';
+			}
+
+			
+		
+			setMonitor($db, $_SESSION['current']->getID(), $selected, $threshold, $_SESSION['date']); 
+			echo "Monitoring set successfully";       
+			include('monitor.php');
+
+		case 'Add Booking':
         $date   = filter_input(INPUT_POST, 'booking_date');
         $desc   = filter_input(INPUT_POST, 'description');
         $userId = filter_input(INPUT_POST, 'userid', FILTER_VALIDATE_INT);
@@ -236,4 +443,12 @@ switch ($action) {
         include('dash.php');
         exit;
 }
+
+	
+
+			
+
+			
+
+	
 ?>

@@ -8,56 +8,41 @@ if(session_status() === PHP_SESSION_NONE){
 
 include ('nav.php');
 
+
+
 ?>
-
-
 
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8">
         <title>Dashboard</title>
-        <link rel="stylesheet" href="css/dash.css">
+        <link rel="stylesheet" href="css/main.css">
 
     </head>
 
     <body>
-	<h1>Hello, <?php echo $_SESSION['current']->getName();?></h1>
-	
-	<form method='post' action='main.php'>
-	<input id='prof' type='submit' name='action' value='Profile'>
-	</form>
+	<h1 id="greeting">Hello, <?php echo $_SESSION['current']->getName();?></h1>
+	<div id="rss">
+	<?php 
+		$feed = simplexml_load_file("https://feeds.npr.org/1128/rss.xml");
 
-	<table>
-	    <tr>
-		<form method='post' action='main.php'>
-		<td><input type='submit' value='Booking' name='action'></td>
-		</form>
-		
-		<form method='post' action='main.php'>       
-		<td><input type='submit' value='Logging' name='action'></td>
-		</form>
+		echo "<h2 style='text-align: center;>" . $feed->channel->title . "</h2>";
+		echo "<ul style='list-style-type: none;'>";
 
-		<form method='post' action='main.php'>
-		<td><input type='submit' value='Search' name='action'></td>
-		</form>
-            </tr>
+		foreach($feed->channel->item as $item){
 
-            <tr>
-            	<form method='post' action='main.php'>
-		<td><input type='submit' value='Monitoring' name='action'></td>
-		</form>
+			echo "<li style='
+				text-align: center; 
+				margin: 2em;
+				'>";
 
-		<form method='post' action='main.php'>
-		<td><input type='submit' value='Sign Out' name='action'></td>
-		</form>
-		
-		<form method='post' action='main.php'>
-                <td><input type='submit' value='Alerts' name='action'></td>
-            	</form>
-
-            </tr>
-        </table>
+			echo "<a href='{$item->link}' style='text-decoration: none;'>" . $item->title . "</a>";
+			echo "</li>";
+		}
+		echo "</ul>";
+?>
+	</div>
 
     </body>
 

@@ -11,7 +11,7 @@ if(session_status() === PHP_SESSION_NONE){
 
 include('nav.php');
 //$_SESSION['current']->getName();
-echo 'loggied in as: ' . $_SESSION['current']->getName() . "<br> and" . $_SESSION['current']->getID() . " is ID<br>";
+//echo 'loggied in as: ' . $_SESSION['current']->getName() . "<br> and" . $_SESSION['current']->getID() . " is ID<br>";
 ?>
 <html>
 
@@ -24,9 +24,6 @@ echo 'loggied in as: ' . $_SESSION['current']->getName() . "<br> and" . $_SESSIO
     <body>
     
         
-        <form method='post' action='main.php'>
-            <input type='submit' name='action' value='Back' style='font-size: 18px; padding: 0.5em;'>
-        </form>
         
         <h1 id="log_title" style="text-align: center;">Activities</h1>
         
@@ -66,7 +63,7 @@ echo 'loggied in as: ' . $_SESSION['current']->getName() . "<br> and" . $_SESSIO
 
             $results = getActivities($db, $_SESSION['current']->getID());
 
-	    $names = ['Calories', 'Sleep', 'Water', 'Exercise', 'Medication', 'User ID', 'ID']; //remove ID
+	    $names = ['Calories', 'Sleep', 'Water', 'Exercise', 'Medication', 'User ID', 'ID', 'Date']; //remove ID
 
 
         if(!empty($results)){

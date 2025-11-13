@@ -30,6 +30,12 @@ ul{
 
 }
 
+
+#greeting{
+
+	text-align: center;
+}
+
 #login{
 
 	background-color: grey;
@@ -38,6 +44,8 @@ ul{
 	color: #ffffff;
 
 }
+
+
 
 #username, #password{
 	
@@ -48,4 +56,26 @@ ul{
 
 	text-align: center;
 	width: 10%;
+}
+
+
+#rss{
+	
+	h1{
+		text-align: center;
+	}
+
+	background-color: white;
+	width: 50%;
+	float: right;
+	overflow-y: scroll;
+	height: 75vh;
+	position: fixed;
+
+
+	ul{
+
+		list-style-type: none;
+	}
+
 }

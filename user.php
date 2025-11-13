@@ -3,11 +3,11 @@
 
     class User{
 
-        private int $id;
+        private int $id = 0;
 
-        private int $action;
+        private int $action = 0;
 
-	private string $name;
+	private string $name = "";
 
 	private int $age = 0;
 
