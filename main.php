@@ -37,7 +37,12 @@
 
 
 
+<<<<<<< Updated upstream
 	$dsn = 'mysql:host=127.0.0.1;dbname=health_system';
+=======
+	//$dsn = 'mysql:host=127.0.0.1;dbname=health_system_final';
+	$dsn = 'mysql:host=localhost;dbname=health_system_final';
+>>>>>>> Stashed changes
 	$user = 'mgs_user';
 	$pw = 'pa55word';
 
