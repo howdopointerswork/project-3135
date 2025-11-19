@@ -17,10 +17,13 @@
                 <input type="text" id="username" name="username">
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password">
-                <input type="submit" value="Submit" name="action">
+		<input type="submit" value="Log In" name="action"
+>
             </form>
 
-        
+        	<form action="main.php" method="post">
+		<input type="submit" value="Sign Up" name="action">
+		</form>
     </body>
 
 </html>

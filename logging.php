@@ -3,15 +3,17 @@
 <?php
 require_once('user.php');
 require_once('db.php');
+require_once('alerts.php');
 
 //require('db.php');
+
 if(session_status() === PHP_SESSION_NONE){
 	session_start();
 }
 
 include('nav.php');
 //$_SESSION['current']->getName();
-//echo 'loggied in as: ' . $_SESSION['current']->getName() . "<br> and" . $_SESSION['current']->getID() . " is ID<br>";
+//echo 'logged in as: ' . $_SESSION['current']->getName() . "<br> and" . $_SESSION['current']->getID() . " is ID<br>";
 ?>
 <html>
 
@@ -60,15 +62,15 @@ include('nav.php');
             </div>
 
         <?php
-
-            $results = getActivities($db, $_SESSION['current']->getID());
+	    
+$results = getActivities($GLOBALS['db'], $_SESSION['current']->getID());
 
 	    $names = ['Calories', 'Sleep', 'Water', 'Exercise', 'Medication', 'User ID', 'ID', 'Date']; //remove ID
 
 
         if(!empty($results)){
 
-            echo "<table style='display: flex; justify-content: center; align-itemts: center;'>";
+            echo "<table style='display: flex; justify-content: center; align-items: center;'>";
 
             echo "<tr>";
 		

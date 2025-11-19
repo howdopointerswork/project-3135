@@ -2,6 +2,7 @@
 <?php
 require_once('user.php');
 require_once('db.php');
+require_once('alerts.php');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -24,7 +25,7 @@ echo 'Logged in as: ' . $_SESSION['current']->getName() .
         th, td { border: 2px solid black; padding: 1em; text-align: center; }
         th { font-weight: bold; background: #f0f0f0; }
         .manage-btn { font-size: 16px; padding: 0.4em 0.8em; margin: 0.2em; }
-        .calendar { width: 90%; margin: 2rem auto; }
+        .calendar { width: 90%; margin: 2em auto; }
         .calendar td { height: 80px; vertical-align: top; font-size: 14px; }
         .day-num { font-weight: bold; font-size: 16px; }
         .booking-text { font-size: 13px; margin-top: 4px; }
@@ -39,6 +40,57 @@ echo 'Logged in as: ' . $_SESSION['current']->getName() .
     </form>
 
     <h1 style="text-align: center;">Bookings</h1>
+
+<?php 
+
+//get user, get bookings, confirm button
+if($_SESSION['current']->getPrivilege() > 0){
+	
+	echo 'admin';
+	echo '<form method="post" action="main.php">';
+	echo "<select name='user'>";
+	foreach(getUsers($db) as $user){
+
+		echo "<option value=" . $user[0] . ">" . $user[1] . "</option>";
+		
+	}
+	echo '</select>';
+	//	foreach(getBookings($db,
+	
+	echo "<select name='booking'>";
+
+	foreach(getAllBookings($db) as $booking){
+
+		echo "<option value=" . $booking[0] . "|" . $booking[1]  . ">ID: " . $booking[0] . " User ID: " . $booking[1] . " Date: " . $booking[2] .  " Desc: " . $booking[3] . "</option>";
+	//	echo "<input type='hidden' name='match' value=" . $booking[1] . ">";
+
+	}
+	echo "</select>";
+
+	echo "<select name='prof'>";
+	foreach(getProfs($db) as $prof){
+
+		echo "<option value=" . $prof[0] . ">" . $prof[1] . "</option>";		
+	}
+	echo "</select>";
+
+
+	echo '<input type="date" name="app_date">';
+	echo '<input type="time" name="app_time">';	
+
+	
+	echo '<input type="submit" name="action" value="Confirm Appointment">';
+
+
+	echo '</form>';
+
+
+}else{
+
+	echo 'base';
+}
+	
+	?>
 
     <!-- Add Booking Form (Hidden by Default) -->
     <div id="booking_system" style="display: none; background: #f4f4f4; padding: 1.5rem; margin: 1rem auto; max-width: 500px; border: 1px solid #ccc;">
@@ -110,7 +162,8 @@ echo 'Logged in as: ' . $_SESSION['current']->getName() .
                 if ($booking) {
                     echo "<div class='booking-text'>{$booking['desc']}</div>";
                     echo "<div style='margin-top: 4px;'>";
-
+			
+		    if(!checkAppointments($db, $_SESSION['current']->getID(), $booking['id'])){
                     // Edit Form
                     echo "<form method='post' action='main.php' style='display:inline;'>";
                     echo "<input type='hidden' name='bookingID' value='{$booking['id']}'>";
@@ -121,7 +174,12 @@ echo 'Logged in as: ' . $_SESSION['current']->getName() .
                     echo "<form method='post' action='main.php' style='display:inline;' onsubmit='return confirm(\"Delete this booking?\");'>";
                     echo "<input type='hidden' name='bookingID' value='{$booking['id']}'>";
                     echo "<input type='submit' name='action' value='Delete' class='manage-btn' style='background:#f44336;color:white;'>";
-                    echo "</form>";
+		    echo "</form>";
+		    }else{
+
+			echo '<p style="color: green">Appointment Confirmed</p>';
+		    }
+
 
                     echo "</div>";
                 } else {

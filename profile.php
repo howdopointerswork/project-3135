@@ -28,8 +28,8 @@ include('nav.php');
 	<div id='prof' style='background-color: #dddddd; width: 75%; text-align: center; margin: 0 auto; font-size: 24px;'> 
 
 		<ul style="list-style-type: none;">
-		
-		<li><img src=<?php echo 'img/' . $_SESSION['current']->getImg(); ?> width=100px height=100px></li>
+			
+		<li><img src=<?php echo 'img/' . $_SESSION['current']->getImg(); ?> alt="profile picture" width=100px height=100px></li> 
 
 <?php
 	

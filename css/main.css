@@ -68,11 +68,9 @@ ul{
 	background-color: white;
 	width: 50%;
 	float: right;
-	overflow-y: scroll;
 	height: 75vh;
-	position: fixed;
-
-
+	overflow-y: scroll;
+	
 	ul{
 
 		list-style-type: none;

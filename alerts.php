@@ -89,11 +89,18 @@
 		}
 
 
-		public function destroyAlert($n){
+		public function destroyAlert($cat, $code){
 
-			unset($this->alerts[$n]);
+	
+			foreach($this->getArray() as $i => $alert){
+	
+				if($alert->getCategory() == $cat && $alert->getCode() == $code){
+									$this->alerts[$i] = [];
+					$this->alerts = array_filter($this->alerts);
+					
+				}
+			}
 
-			$this->alerts = array_values($this->alerts);
 		}
 
 
@@ -251,6 +258,8 @@
 					return 'yellow';
 				case 3:
 					return 'red';
+				default:
+					return 'idk';
 			}
 
 		}	

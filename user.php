@@ -21,15 +21,24 @@
 
 	private string $img = '';
 
+	private int $privilege = 0;
+
 
 
         
-        public function __construct(string $name="Guest"){
+        public function __construct(int $id=0, string $name="Guest", int $age=0, float $ht=0, float $wt=0, string $gender='', string $img='', int $privilege = 0){
             
+		$this->id = $id;
 		$this->name = $name;
-		
+		$this->age = $age;
+		$this->ht = $ht;
+		$this->wt = $wt;
+		$this->gender = $gender;
+		$this->privilege = $privilege;		
 		
         }
+
+
 
         public function getID() : int{
     
@@ -119,6 +128,16 @@
 		return $this->img;
 	}
 
+	public function setPrivilege($n){
+
+		$this->privilege = $n;
+	}
+
+	public function getPrivilege() : int{
+		
+		return $this->privilege;
+
+	}
 
 
 

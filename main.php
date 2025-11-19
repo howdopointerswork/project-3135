@@ -1,13 +1,40 @@
 <?php
 //	require('user.php')
 	require_once('db.php');
-	require('functions.php'); //for testing, can be ignored
 	require_once('user.php');
 	require_once('alerts.php');
 	
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
 	error_reporting(E_ALL);
+
+
+	function loopCheck($arr, $query){
+	
+		if(!empty($arr) && $query != null){
+			echo '<table>';
+			echo '<th style="colspan:' . count($arr) . '">Users</th>';	
+			
+			foreach($arr as $element){
+						
+				$contains = array_filter($element, function($item){
+			
+				return strpos($item, $query) !== false;	
+				});
+				
+				if(!empty($contains)){
+					echo '<tr>';
+					foreach($element as $e){
+						echo '<td>' . $e . '</td>';
+					}
+					echo '</tr>';
+				}		
+			}
+
+			echo '</table>';
+			}
+	}
+	
 
 	if(session_status() === PHP_SESSION_NONE){
 
@@ -71,6 +98,8 @@
 	try{
 		
 		$db = new PDO($dsn, $user, $pw);
+		$GLOBALS['db'] = $db;
+	//	$_SESSION['db'] = $db;
 		//echo "Database found<br>";
 	        
 	}catch(PDOException $e){
@@ -89,7 +118,7 @@
 
 	
 
-		case 'Submit':
+		case 'Log In':
 		
 			
 			//action can be used to check for signups, logins, etc.
@@ -105,45 +134,46 @@
 			$name = $statement->fetch();
 	
 			if(empty($name)){
-
-				echo "<br>Sign Up";
-				include("signup.php");
+			
+				include('signup.php');
 				exit;
 			
-				//addUser($db, $username, $password);
-			
-				//testing();
-		
+				//addUser($db, $username, $password);	
 
 			} else{
-
+				
 				$result = authenticate($db, $username, $password);
-				if(isset($result)){
-				//	echo "good<br>";
-					echo $result[3];
-				}
-				if($result[3]){
+
+
+				if(is_array($result) && end($result)){
 
 					if(session_status() === PHP_SESSION_NONE){
 						session_start();
 					}
 
-					$u->setID($result[0]);
-					$u->setName($result[1]);
-					$u->setAge($result[3]);
-					$u->setHt($result[4]);
-					$u->setWt($result[5]);
-					$u->setGender($result[6]);
-					$u->setImg($result[7]);
-				//	echo "ID: " . $u->getID();
 
-					$_SESSION['current'] = $u;
+					$_SESSION['current'] = new User($result[0], $result[1], $result[3], $result[4], $result[5], $result[6], $result[7], $result[9]);
+
 					$_SESSION['activities'] = getActivities($db, $_SESSION['current']->getID());
+					$_SESSION['bookings'] = getBookings($db, $_SESSION['current']->getID());
 
+					$apts = getAppointments($db, $_SESSION['current']->getID());
 
-					if(empty($_SESSION['activities'])){
-						echo "error";
-					}else{
+					if(!empty($apts)){
+
+						foreach($apts as $apt){
+
+							if(end($apt) > $_SESSION['date']){
+
+								echo 'upcoming!';
+								$apt_alert = new Alert();
+							}
+						}
+					}	
+				
+					if(!empty($_SESSION['activities'])){
+						
+					
 
 						if($_SESSION['activities'][count($_SESSION['activities'])-1] != $_SESSION['date']){
 
@@ -152,37 +182,29 @@
 							$time2 = new DateTime($_SESSION['activities'][count($_SESSION['activities'])-1][7]);		
 							//use constructor
 							$diff = $time1->diff($time2);
-							$alert = new Alert();
-							$alert->setCategory(2);
-							$alert->setStatus(3);
-							$alert->setCode(0);
+							$alert = new Alert(2, 3, '', 0);
 							$alert->setMsg("You haven't logged an activity in " . $diff->days . " day(s)!");
+
+							
+
 							$_SESSION['alerts']->addAlert($alert);
 
 							$bookings = getBookings($db, $_SESSION['current']->getID());	
 							$recent = new DateTime($bookings[count($bookings)-1]['booking_date']);
 							$diff2 = $time1->diff($recent);
-							$when = '';
-							$tense = 'in';
 
-							if($recent < $time1){
-								$when = 'ago';
-								$tense = 'was';
-							}else{
-								echo 'nope';
+							if($recent >= $time1){
+
+								$alert2 = new Alert(3, 1, '', 0);
+								$alert2->setMsg("Appointment Notice: Appointment in " . $diff2->days . " day(s) ");
+								$_SESSION['alerts']->addAlert($alert2);
 							}
-							
-
-							$alert2 = new Alert();
-							$alert2->setCategory(3);
-							$alert2->setStatus(1);
-							$alert2->setCode(0);
-							$alert2->setMsg("Appointment Notice: Appointment " . $tense . " " . $diff2->days . " day(s) " . $when);
-							$_SESSION['alerts']->addAlert($alert2);
 
 
 						}
 					}
+					
+					
 					$_SESSION['page'] = 'dash.php';
 					include("dash.php");
 
@@ -191,9 +213,46 @@
 				}
 				else{
 				
-					echo "<br>Failed to log in";
+					include('login.php');
+					exit;
+
 				}
 			}
+		
+
+		case 'Sign Up':
+			include ('signup.php');
+			exit;
+
+		case 'Add Account':
+
+			$field1 = filter_input(INPUT_POST, 'Username');
+			$field2 = filter_input(INPUT_POST, 'Password');
+			$field3 = filter_input(INPUT_POST, 'Age');
+			$field4 = filter_input(INPUT_POST, 'Height');
+			$field5 = filter_input(INPUT_POST, 'Weight');
+			$field6 = filter_input(INPUT_POST, 'Gender');
+
+			addUser($db, $field1, $field2, $field3, $field4, $field5, $field6, '', $_SESSION['date'], 0);
+
+			
+				
+			$result = authenticate($db, $field1, $field2);
+
+				if(is_array($result) && end($result)){
+
+					if(session_status() === PHP_SESSION_NONE){
+						session_start();
+					}
+
+
+					$_SESSION['current'] = new User($result[0], $result[1], $result[3], $result[4], $result[5], $result[6], $result[7], $result[8]);
+					include('dash.php');
+					exit;
+				}
+				
+
+		
 
 
 		case 'Booking':
@@ -212,7 +271,97 @@
 
 			$_SESSION['page'] = 'search.php';
 			include("search.php");
-			exit;
+
+		//	$query = filter_input(INPUT_POST, 'query') ?? "pp";
+			$users = getUsers($db);
+			$profs = getProfs($db);
+			$acts = getActivities($db, $_SESSION['current']->getID());
+			$books = getBookings($db, $_SESSION['current']->getID());
+			$apts = getAppointments($db, $_SESSION['current']->getID());
+			
+		//	if($query != NULL){
+			echo '<table>';
+		//	echo '<th style="colspan:10">Header</th>';	
+			$arrays = [$users, $profs, $acts, $books, $apts];
+			$i = 0;
+			$size = 0;
+			$headers = ['Users', 'Doctors', 'Activities', 'Bookings', 'Appointments'];	
+			
+			foreach($arrays as $array){
+				
+	
+				if(!empty($array)){
+					echo '<table style="margin: 0 auto; text-align: center">';
+					if($headers[$i] == 'Users'){
+						$size = count($array)-1;
+					}else{
+						$size = count($array);
+					}
+				echo '<th style="colspan:' . $size . '; font-size: 24px">' . $headers[$i++] . '</th>';	
+				//loop here for headers	
+				$query = filter_input(INPUT_POST, 'query') ?? "";
+				foreach($array as $index => $element){
+					$contains = array_filter($element, function($item){
+						global $query;
+						
+					return strpos($item, $query) !== false;	
+					});
+					
+					if(!empty($contains)){
+						echo '<tr>';
+						$prev = '';
+						$prevKey = '';
+						$j = 0;	
+						$keys = array_keys($element);
+						$pass = true;
+					//	echo var_dump($element);
+
+						foreach($element as $ind => $e){											if($headers[$i-1] == 'Users' && $e == $element[2]){
+						}else{	
+							//loop
+							$offset = 0;
+							$pos = 0;
+							$positions = [];
+							
+
+							if(str_contains($e, $query)){
+
+								$e = str_replace($query, '<span style="background-color: yellow">' . $query . '</span>', $e); 
+							}
+							
+							
+							//no passwords shown
+							if($headers[$i-1] == 'Users' && $e == $element[2]){
+																										     $pass = true;
+							}
+
+							if($e !== 0 && $e == null){
+								
+								$e = ' ';
+							}	
+											
+
+							
+								if(!$pass && $e != $prev){
+								
+									echo '<td style="border: solid 2px black; font-size: 18px; padding: 1em">' . $e . '</td>';
+									$pass = true;	
+								}else{
+									$pass = false;
+								}
+							}	
+					
+						}
+						echo '</tr>';
+					}	
+				}
+
+				echo '</table>';
+				}
+			
+		}
+			
+		exit;
 
 		case 'Monitoring':
 			
@@ -226,8 +375,14 @@
 			include('login.php');
 			break;
 
-		case 'Clear':
-			$_SESSION['alerts']->clearAlerts();
+		case 'Delete Alert':
+			
+			//	$_SESSION['alerts']->clearAlerts();
+			$deleteCat = filter_input(INPUT_POST,'Category');
+			$deleteCode = filter_input(INPUT_POST, 'Code');
+			
+			$_SESSION['alerts']->destroyAlert($deleteCat, $deleteCode);
+			echo 'size: ' . count($_SESSION['alerts']->getArray());
 			$current = $_SESSION['page'];
 			include($current);
 			break;	
@@ -261,6 +416,7 @@
 			}*/
 
 			addActivity($db, $values, $_SESSION['date']);
+			
 			break;
 
 		case 'Delete Activity':
@@ -424,7 +580,30 @@
         } else {
             include('booking.php');
         }
-        exit;
+	exit;
+
+
+    case 'Confirm Appointment':
+
+	$uid = filter_input(INPUT_POST, 'user');
+	$bid = filter_input(INPUT_POST, 'booking');
+	$pid = filter_input(INPUT_POST, 'prof');
+	$date = filter_input(INPUT_POST, 'app_date');
+	$time = filter_input(INPUT_POST, 'app_time');
+	
+
+	$booking = explode('|', $bid);
+
+	if($uid === $booking[1]){
+
+		//check prof availability?
+		addAppointment($db, $uid, $pid, $booking[0], $date, $time, $_SESSION['date']); 
+
+	}else{
+		echo '<span style="color: red">Error: User ID mismatch</span>';
+	}	
+		
+	    //include('booking.php');	    
 
     case 'Update Booking':
         $bid  = filter_input(INPUT_POST, 'bookingID', FILTER_VALIDATE_INT);

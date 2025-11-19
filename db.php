@@ -1,22 +1,63 @@
 <?php
 
-    function addUser($db, $username, $password){
+    function addUser($db, $username, $password, $age=0, $ht=0, $wt=0, $gen='', $prof='', $ca='', $p=0){
 
-    
-        $qry = "INSERT INTO user (username, password)
-            VALUES (:username, :password)";
+	    $qry = "SELECT * FROM user WHERE username = :username";
+	    $stmnt = $db->prepare($qry);
+
+	    $stmnt->bindValue(':username', $username);
+
+	    $stmnt->execute();
+
+	    if(!$stmnt->fetch()){
+
+        	$qry = "INSERT INTO user (username, password, age, height, weight, gender, created_at, profile_img, privilege)
+            		VALUES (:username, :password, :age, :height, :weight, :gender, :created_at, :profile_img, :privilege)";
                
-        $stmnt = $db->prepare($qry);
+        	$stmnt = $db->prepare($qry);
 
-        $stmnt->bindValue(':username', $username); //prevent duplicate usernames
+        	$stmnt->bindValue(':username', $username);
+		$stmnt->bindValue(':password', $password);
+		$stmnt->bindValue(':age', $age);
+		$stmnt->bindValue(':height', $ht);
+		$stmnt->bindValue(':weight', $wt);
+		$stmnt->bindValue(':gender', $gen);
+		$stmnt->bindValue(':created_at', $ca);
+		$stmnt->bindValue(':profile_img', $prof);
+		$stmnt->bindValue(':privilege', $p);
 
-        $stmnt->bindValue(':password', $password);
 
-        $stmnt->execute();
+		$stmnt->execute();
+	}
 
     }
 
-    
+
+    function getUser($db, $id){
+	
+	    $qry = "SELECT * FROM user WHERE user_id = :id";
+
+	    $stmnt = $db->prepare($qry);
+	    $stmnt->bindValue(':id', $id);
+	    $stmnt->execute();
+
+	    return $stmnt->fetch();
+	
+    } 
+
+
+    function getUsers($db){
+	
+	    $qry = "SELECT * FROM user";
+
+	    $stmnt = $db->prepare($qry);
+
+	    $stmnt->execute();
+
+	    return $stmnt->fetchAll(PDO::FETCH_BOTH);
+    }
+
+
     function authenticate($db, $username, $password){
 
         $qry = "SELECT * FROM user
@@ -28,13 +69,12 @@
 
         $stmnt->execute();
 
-        $result = $stmnt->fetch();
-
+	$result = $stmnt->fetch();
         
 
         //check if empty first
     
-        if($result[2] == $password){
+        if(!empty($result[2]) && $result[2] == $password){
     	    
             $result[] = true;
             return $result;
@@ -42,7 +82,7 @@
         else{
 
         
-            $result[] = false;
+            $result = false;
             return $result;
         }
 
@@ -91,11 +131,13 @@
 
         $stmnt->execute();
 
-        $results = $stmnt->fetchAll();
+        $results = $stmnt->fetchAll(PDO::FETCH_BOTH);
 
         return $results;
 
     }
+
+    
 
     function getActivitiesByDate($db, $id, $d1, $d2){
 
@@ -315,14 +357,118 @@
 		
 	}
 
+	function getProfs($db){
 
-	function getBookings($db, $userId) {
+		$qry = "SELECT * FROM professionals";
+		$stmnt = $db->prepare($qry);
+
+		$stmnt->execute();
+
+		return $stmnt->fetchAll(PDO::FETCH_BOTH);
+	}
+
+	
+	function addAppointment($db, $uid, $pid, $bid, $aptDate, $aptTime, $ca){
+
+		$qry = "INSERT INTO appointments (user_id, professional_id, booking_id, appointment_date, appointment_time, created_at) VALUES (:uid, :pid, :bid, :aptDate, :aptTime, :createdAt)";
+
+		$stmnt = $db->prepare($qry);
+
+		$stmnt->bindValue(':uid', $uid);
+		$stmnt->bindValue(':pid', $pid);
+		$stmnt->bindValue(':bid', $bid);
+		$stmnt->bindValue(':aptDate', $aptDate);
+		$stmnt->bindValue(':aptTime', $aptTime);
+		$stmnt->bindValue(':createdAt', $ca);
+
+		$stmnt->execute();
+	}
+
+	function getAppointments($db, $uid){
+
+		$qry = "SELECT * FROM appointments WHERE user_id = :uid";
+
+		$stmnt = $db->prepare($qry);
+
+		$stmnt->bindValue(':uid', $uid);
+
+		$stmnt->execute();
+
+		return $stmnt->fetchAll(PDO::FETCH_BOTH);
+	}
+
+	function getAllAppointments($db){
+	
+		$qry = "SELECT * FROM appointments";
+
+		$stmnt = $db->prepare($qry);
+
+		$stmnt->execute();
+
+		return $stmnt->fetchAll();
+
+	}
+
+	
+	function checkAppointments($db, $uid, $bid) : bool{
+
+		$qry = 'SELECT * FROM appointments WHERE user_id = :uid AND booking_id = :bid';
+
+		$stmnt = $db->prepare($qry);
+
+		$stmnt->bindValue(':uid', $uid);
+		$stmnt->bindValue(':bid', $bid);
+
+		$stmnt->execute();
+
+		$apt = $stmnt->fetchAll();
+
+		
+		$qry = 'SELECT * FROM booking WHERE userid = :uid AND id = :bid';
+
+		$stmnt = $db->prepare($qry);
+
+		$stmnt->bindValue(':uid', $uid);
+		$stmnt->bindValue(':bid', $bid);
+
+		$stmnt->execute();
+
+		$bkg = $stmnt->fetchAll();
+		
+	//	echo var_dump($apt);
+
+		//	return $apt['booking_id'] === $bkg['id'] ? true : false;
+		if(!empty($apt) && !empty($bkg)){
+			if($apt[0][3] === $bkg[0][0]){
+				return true;
+			}
+		}	
+		return false;
+
+
+	}	
+
+
+function getBookings($db, $userId) {
     $qry = "SELECT * FROM booking WHERE userid = :userid ORDER BY booking_date ASC";
     $stmt = $db->prepare($qry);
     $stmt->bindValue(':userid', $userId, PDO::PARAM_INT);
     $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-}
+    return $stmt->fetchAll(PDO::FETCH_BOTH);
+	}
+
+function getAllBookings($db){
+	
+	$qry = "SELECT * FROM booking";
+
+	$stmnt = $db->prepare($qry);
+
+	$stmnt->execute();
+
+	return $stmnt->fetchAll();
+
+
+}	
 
 function addBooking($db, $userId, $date, $description) {
     $qry = "INSERT INTO booking (userid, booking_date, description) 

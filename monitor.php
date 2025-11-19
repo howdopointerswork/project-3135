@@ -37,6 +37,8 @@
 			$results = getActivitiesByDate($db, $_SESSION['current']->getID(), $mod, $_SESSION['date']);
 
 			$monitor = getMonitor($db, $_SESSION['current']->getID());
+
+			if($monitor){
 			
 			echo "Date1: " . $_SESSION['date'] . "<br>";
 			echo "Date2: $monitor[4]<br>";
@@ -47,6 +49,7 @@
 			}else{
 				$cmp = false;
 			}
+			
 
 		//	echo "Today is: " . $_SESSION['date'] . "<br>"; 
 			$arr = ['BMI', 'Calories', 'Sleep', 'Water', 'Exercise', 'Medication'];
@@ -77,26 +80,6 @@
 
 			echo '</form>';
 
-		//	$mod = date('Y-m-d', strtotime('-30 days'));
-
-	/*		$cmp;
-
-
-	
-
-			$results = getActivitiesByDate($db, $_SESSION['current']->getID(), $mod, $_SESSION['date']);
-
-			$monitor = getMonitor($db, $_SESSION['current']->getID());
-			
-			echo "Date1: " . $_SESSION['date'] . "<br>";
-			echo "Date2: $monitor[4]<br>";
-
-			if($monitor[4] != $_SESSION['date']){
-
-				$cmp = true;
-			}else{
-				$cmp = false;
-			}*/
 
 			$avg = 0;
 			$status = 0;
@@ -125,7 +108,7 @@
 				echo "Nothing set";
 			}
 
-			if($cat === 0){
+			if(isset($cat) && $cat === 0){
 
 				echo '<br>bmi';
 
@@ -161,7 +144,7 @@
 
 			}else{
 
-			if(number_format($avg,0) != number_format($monitor[3],0) || !isset($monitor[3])){
+			if((isset($avg) && isset($monitor)) && (number_format($avg,0) != number_format($monitor[3],0) || !isset($monitor[3]))){
 
 				
 				//check if second cond is true, if so, send alert
@@ -257,7 +240,10 @@
 				echo "No alert";
 			}
 				
-		}
+			}
+			}else{
+				echo "You have nothing to monitor - please log activities or book an appointment";
+			}
 		?>	
 			
 	</div>
