@@ -617,6 +617,44 @@
         include('booking.php');
         exit;
 
+case 'Stress Tracker':
+    include('stress.php');
+    exit;
+
+case 'Stress Tracker':
+    include('stress.php');
+    exit;
+
+case 'Save Stress Log':
+    $userId = $_SESSION['current']->getID();
+    $level = filter_input(INPUT_POST, 'stress_level', FILTER_VALIDATE_INT);
+    $notes = trim(filter_input(INPUT_POST, 'notes'));
+
+    if ($level === false || $level < 1 || $level > 10) {
+        $alert = new Alert(2, 3, 'Stress level must be between 1 and 10.', 999);
+        $_SESSION['alerts']->addAlert($alert);
+    } else {
+        addStressLevel($db, $userId, date('Y-m-d'), $level, $notes);
+    }
+    include('stress.php');
+    exit;
+
+case 'Compare Selected Days':
+    $selected = filter_input(INPUT_POST, 'selected', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?? [];
+    if (count($selected) < 2) {
+        $alert = new Alert(2, 3, 'Please select at least two days to compare.', 998);
+        $_SESSION['alerts']->addAlert($alert);
+    } else {
+        $_SESSION['compare_stress'] = $selected;
+    }
+    include('stress.php');
+    exit;
+
+case 'Clear Comparison':
+    unset($_SESSION['compare_stress']);
+    include('stress.php');
+    exit;
+
     /* -------------------- FALLBACK -------------------- */
     default:
         include('dash.php');

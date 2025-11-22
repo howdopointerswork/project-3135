@@ -503,6 +503,34 @@ function updateBooking($db, $bookingId, $date, $description) {
     $stmt->bindValue(':id', $bookingId, PDO::PARAM_INT);
     $stmt->execute();
 }
+
+function addStressLevel($db, $userId, $date, $level, $notes = '') {
+    $qry = "INSERT INTO stress_levels (user_id, log_date, stress_level, notes) 
+            VALUES (:user_id, :date, :level, :notes)
+            ON DUPLICATE KEY UPDATE stress_level = :level, notes = :notes";
+    $stmt = $db->prepare($qry);
+    $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->bindValue(':date', $date);
+    $stmt->bindValue(':level', $level, PDO::PARAM_INT);
+    $stmt->bindValue(':notes', $notes);
+    $stmt->execute();
+}
+
+function getStressLevels($db, $userId) {
+    $qry = "SELECT * FROM stress_levels WHERE user_id = :user_id ORDER BY log_date DESC";
+    $stmt = $db->prepare($qry);
+    $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+function getStressLevel($db, $id) {
+    $qry = "SELECT * FROM stress_levels WHERE id = :id";
+    $stmt = $db->prepare($qry);
+    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
     
 
 ?>

@@ -8,7 +8,7 @@ if(session_status() === PHP_SESSION_NONE){
 }
 
 
-	$names = ['', 'Profile', 'Booking', 'Logging', 'Monitoring', 'Sign Out', 'Dashboard', 'Search'];
+	$names = ['', 'Profile', 'Booking', 'Logging', 'Monitoring', 'Stress Tracker', 'Sign Out', 'Dashboard', 'Search'];
 
 	echo '<nav>
 	<form method="post" action="main.php" style="display: flex; flex-direction: row; border-bottom: solid 2px black;>';
