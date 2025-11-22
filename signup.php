@@ -1,8 +1,15 @@
+
+<?php
+// testing if the header will work 
+include 'inc/header.php';
+
+?>
+
 <?php
 
 $time = date('YYYY-mm-dd');
 
-echo "<h1>Sign Up</h1>";
+echo "<h1 class='auth-title' id='signupTitle'>Sign Up</h1>";
 $fields = ['Username', 'Password', 'Age', 'Height', 'Weight', 'Gender'];
 
 echo "<form class='signup-form' method='post' action='main.php'>";
@@ -28,12 +35,9 @@ echo "</form>";
 
 ?>
 
-<!DOCTYPE HTML>
-<html>
+<?php
+// Calls footer
+include 'inc/footer.php';
 
-<head>
-<link rel="stylesheet" href="css/main.css">
-</head>
-
-</html>
+?>
 

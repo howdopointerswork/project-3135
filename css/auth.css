@@ -1,0 +1,116 @@
+/* Authentication (signup / login) form styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Stack+Sans+Text:wght@200..700&display=swap'); /* Stack Sans */
+
+:root{
+    --auth-max-width: 480px;
+    --auth-gap: 14px;
+    --auth-radius: 10px;
+    --accent-start: #ffd966;
+    --accent-end: #ffb400;
+}
+
+/* Title for auth pages (signup/login) */
+.auth-title{
+    text-align: center;
+    max-width: var(--auth-max-width);
+    margin: 14px auto 8px auto;
+    font-size: 28px;
+    font-family: 'Stack Sans Text', sans-serif;
+    color: #111;
+}
+
+/* Apply site font for auth pages */
+html, body, .signup-form, .auth-card {
+    font-family: 'Stack Sans Text', sans-serif;
+}
+
+/* General form container used on signup page */
+.signup-form,
+.auth-card{
+    width: 100%;
+    max-width: var(--auth-max-width);
+    margin: 28px auto;
+    padding: 20px 22px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius: 12px;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+    border: 1px solid rgba(0,0,0,0.06);
+    box-sizing: border-box;
+}
+
+.signup-row,
+.auth-row{
+    display: flex;
+    flex-direction: column;
+    gap: var(--auth-gap);
+    margin-bottom: 12px;
+}
+
+.signup-label,
+.auth-label{
+    font-size: 14px;
+    color: #222;
+}
+
+.signup-input,
+.auth-input,
+#login input[type="text"],
+#login input[type="password"]{
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid #d8d8d8;
+    background: #fff;
+    font-size: 15px;
+    box-sizing: border-box;
+    transition: box-shadow 0.16s ease, border-color 0.12s ease, transform 0.08s ease;
+}
+
+.signup-input:focus,
+.auth-input:focus,
+#login input[type="text"]:focus,
+#login input[type="password"]:focus{
+    outline: none;
+    border-color: var(--accent-end);
+    box-shadow: 0 8px 20px rgba(255,180,0,0.10);
+    transform: translateY(-1px);
+}
+
+/* Buttons — match newsletter look */
+.signup-btn,
+.auth-btn,
+#login input[type="submit"]{
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+    background: linear-gradient(90deg,var(--accent-start) 0%, var(--accent-end) 100%);
+    border: none;
+    border-radius: var(--auth-radius);
+    cursor: pointer;
+    box-shadow: 0 10px 28px rgba(255,160,0,0.14);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+}
+
+.signup-btn:hover,
+.auth-btn:hover,
+#login input[type="submit"]:hover{
+    transform: translateY(-2px);
+    opacity: 0.98;
+}
+
+.signup-btn:active,
+.auth-btn:active,
+#login input[type="submit"]:active{
+    transform: translateY(0);
+    box-shadow: 0 6px 18px rgba(255,140,0,0.12);
+}
+
+@media (max-width: 520px){
+    .signup-form, .auth-card{ padding: 14px; }
+    .signup-row, .auth-row{ gap: 10px; }
+}
+
+
