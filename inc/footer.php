@@ -23,7 +23,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_submit']))
 <!-- Footer partial: include this from pages. -->
 <!-- Prefer to add the stylesheet in the site header; fallback link here. -->
 <link rel="stylesheet" href="/project-3135/css/footer.css">
-<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+<!-- Use Font Awesome CDN CSS so icons load without a kit ID -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <footer>
   <div class="container">
@@ -39,10 +40,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_submit']))
         <div class="lower-left">
           <h3>Contact Us</h3>
           <div class="phone">
-            <a href="#"><i class="fas fa-phone"></i> +1 (555) 123-4567</a>
+            <a href="#"><i class="fa-solid fa-phone"></i> +1 (555) 123-4567</a>
           </div>
           <div class="email">
-            <a href="mailto:freedolphin.haru@gmail.com"><i class="fas fa-envelope"></i> wysecare@mail.ca</a>
+            <a href="mailto:freedolphin.haru@gmail.com"><i class="fa-solid fa-envelope"></i> wysecare@mail.ca</a>
           </div>
         </div>
       </div>

@@ -236,6 +236,42 @@ footer .container {
     color: #e6e6e6;
 }
 
+/* Contact Us: force white text and links (was showing blue on some browsers) */
+.footer-top .footer-content .lower-left,
+.footer-top .footer-content .lower-left p,
+.footer-top .footer-content .lower-left a,
+.footer-top .footer-content .lower-left .phone a,
+.footer-top .footer-content .lower-left .email a,
+.footer-top .footer-content .lower-left i {
+    color: #ffffff !important;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.footer-top .footer-content .lower-left a {
+    text-decoration: none;
+    opacity: 0.95;
+}
+
+.footer-top .footer-content .lower-left a:hover {
+    color: #ffd966;
+}
+
+/* Make contact anchors align icon + text neatly */
+.footer-top .footer-content .lower-left .phone a,
+.footer-top .footer-content .lower-left .email a {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff !important;
+}
+
+.footer-top .footer-content .lower-left i {
+    font-size: 16px;
+    line-height: 1;
+    color: #fff !important;
+}
+
 .bottom{
     width: 100%;
     margin-top: 28px;
