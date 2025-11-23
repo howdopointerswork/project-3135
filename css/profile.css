@@ -2,16 +2,53 @@
 @import url('https://fonts.googleapis.com/css2?family=Stack+Sans+Text:wght@200..700&display=swap'); /* Stack Sans */
 
 body{
-	background-color: #b5b5b5;
+	background-color: #f5e6d3;
 	font-family: 'Stack Sans Text', sans-serif;
+}
+
+/* Profile header container */
+.profile-header-container {
+	max-width: 900px;
+	margin: 2em auto 1em;
+	display: flex;
+	align-items: center;
+	gap: 1em;
+	position: relative;
+}
+
+/* Back button in header */
+.profile-back-btn {
+	padding: 0.75em 1.5em;
+	font-size: 15px;
+	font-weight: 600;
+	color: #fff;
+	background: linear-gradient(90deg, #6c757d 0%, #5a6268 100%);
+	border: none;
+	border-radius: 8px;
+	cursor: pointer;
+	box-shadow: 0 4px 12px rgba(108,117,125,0.3);
+	transition: transform 0.12s ease, box-shadow 0.12s ease;
+	display: flex;
+	align-items: center;
+	gap: 0.5em;
+}
+
+.profile-back-btn:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 6px 16px rgba(108,117,125,0.4);
+}
+
+.profile-back-btn i {
+	font-size: 14px;
 }
 
 /* Profile title */
 .profile-title {
-	text-align: center;
+	text-align: left;
 	font-size: 36px;
 	color: #111;
-	margin: 2em auto 1em;
+	margin: 0;
+	flex: 1;
 }
 
 /* Main profile card */

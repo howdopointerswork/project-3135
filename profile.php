@@ -24,7 +24,12 @@ include('nav.php');
 
 
 <body>
-	<h1 class="profile-title">My Profile</h1>
+	<div class="profile-header-container">
+		<form method='post' action='main.php' style='margin: 0;'>
+			<button type='submit' name='action' value='Back' class='profile-back-btn'><i class="fas fa-arrow-left"></i> Back</button>
+		</form>
+		<h1 class="profile-title">My Profile</h1>
+	</div>
 
 	<div class="profile-card">
 		<div class="profile-photo-section">
@@ -47,7 +52,6 @@ include('nav.php');
 ?>
 				<div class="profile-actions">
 					<input type='submit' name='action' value='Save' id='Save' class='profile-btn profile-btn-save' style='display: none;'>
-					<input type='submit' name='action' value='Back' class='profile-btn profile-btn-back'>
 				</div>
 			</form>
 		</div>
