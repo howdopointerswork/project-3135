@@ -50,27 +50,37 @@ $newdate = $date->modify('-1 day');
 			<div class="stat-number"><?php if(!empty(getAppointments($db, $_SESSION['current']->getID()))){ echo count(getAppointments($db, $_SESSION['current']->getID())); } else { echo '0'; } ?></div>
 		</div>
 	</div>
-	<h1 style="text-align: center;">News</h1>	
-	<section id="rss" style="margin-top: 2em;">
+	
+	<div class="news-section">
+		<h1 class="news-title"><i class="fas fa-newspaper"></i> Latest News</h1>	
+		<div class="news-container">
 	<?php 
 		$feed = simplexml_load_file("https://feeds.npr.org/1128/rss.xml");
 
-		echo "<h2 style='text-align: center;>" . $feed->channel->title . "</h2>";
-		echo "<ul style='list-style-type: none;'>";
+		echo "<h2 class='news-source'>" . $feed->channel->title . "</h2>";
+		echo "<div class='news-grid'>";
 
+		$count = 0;
 		foreach($feed->channel->item as $item){
-
-			echo "<li style='
-				text-align: center; 
-				margin: 2em;
-				'>";
-
-			echo "<a href='{$item->link}' style='text-decoration: none;'>" . $item->title . "</a>";
-			echo "</li>";
+			if($count >= 6) break; // Limit to 6 news items
+			
+			echo "<div class='news-card'>";
+			echo "<div class='news-card-content'>";
+			echo "<h3 class='news-card-title'><a href='{$item->link}' target='_blank'>" . $item->title . "</a></h3>";
+			if(!empty($item->description)){
+				echo "<p class='news-card-description'>" . strip_tags($item->description) . "</p>";
+			}
+			echo "<div class='news-card-footer'>";
+			echo "<i class='fas fa-external-link-alt'></i> Read more";
+			echo "</div>";
+			echo "</div>";
+			echo "</div>";
+			$count++;
 		}
-		echo "</ul>";
+		echo "</div>";
 ?>
-	</section>
+		</div>
+	</div>
 
     </body>
 
