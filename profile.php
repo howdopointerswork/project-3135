@@ -18,68 +18,70 @@ include('nav.php');
 <head>
 <title>User Profile - <?php echo $_SESSION['current']->getName();?></title>
 <meta charset='utf-8'>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <link rel="stylesheet" href="css/profile.css">
 </head>
 
 
 <body>
-	<h1>My Profile</h1>
+	<h1 class="profile-title">My Profile</h1>
 
-	<div id='prof' style='background-color: #dddddd; width: 75%; text-align: center; margin: 0 auto; font-size: 24px;'> 
+	<div class="profile-card">
+		<div class="profile-photo-section">
+			<img src="<?php echo 'img/' . $_SESSION['current']->getImg(); ?>" alt="profile picture" class="profile-photo">
+			<button type='button' id='editCancel' class="profile-edit-btn"><i class="fas fa-edit"></i> Edit Profile</button>
+		</div>
 
-		<ul style="list-style-type: none;">
-			
-		<li><img src=<?php echo 'img/' . $_SESSION['current']->getImg(); ?> alt="profile picture" width=100px height=100px></li> 
-
+		<div class="profile-info-section">
+			<form method='post' action='main.php' class="profile-form">
 <?php
-	
-
 	$arr = ['Username' => 'getName', 'Age' => 'getAge', 'Height' => 'getHt', 'Weight' => 'getWt', 'Gender' => 'getGender'];
 	
-	echo "<form method='post' action='main.php'>";
-
 	foreach($arr as $index => $name){
-	
-		echo '<li><strong>' . $index . ': </strong>' . $_SESSION['current']->$name();
-		echo "<li><input type='text' name=$index id=$index style='visibility: hidden;'></li>";
-
+		echo '<div class="profile-field">';
+		echo '<label class="profile-label"><i class="fas fa-' . ($index == 'Username' ? 'user' : ($index == 'Age' ? 'calendar' : ($index == 'Height' ? 'ruler-vertical' : ($index == 'Weight' ? 'weight' : 'venus-mars')))) . '"></i> ' . $index . ':</label>';
+		echo '<span class="profile-value" id="display-' . $index . '">' . $_SESSION['current']->$name() . '</span>';
+		echo '<input type="text" name="' . $index . '" id="' . $index . '" class="profile-input" style="display: none;" placeholder="Enter ' . $index . '">';
+		echo '</div>';
 	}
-
-	echo "<li><input type='submit' name='action' value='Save' id='Save' style='visibility: hidden; font-size: 18px;'></li>";
-
-	echo "<li><input type='submit' name='action' value='Back' style='font-size: 18px;'></li>";
-
-	echo "</form>";
 ?>
-		
-		<li><input type='button' value='Edit Profile' id='editCancel' style='font-size: 18px;'>
-		</li>
+				<div class="profile-actions">
+					<input type='submit' name='action' value='Save' id='Save' class='profile-btn profile-btn-save' style='display: none;'>
+					<input type='submit' name='action' value='Back' class='profile-btn profile-btn-back'>
+				</div>
+			</form>
+		</div>
+	</div>
 
-		
-
-		<script>
+	
+	<script>
 	document.getElementById('editCancel').addEventListener('click', function() {
-		
 		if(showForm){
 			showForm = false;
-			this.value = 'Cancel'
+			this.innerHTML = '<i class="fas fa-times"></i> Cancel';
+			this.classList.add('cancel-mode');
 			arr.forEach(function(item){
-
-				document.getElementById(item).style.visibility = 'visible';
-			})}else{
-
+				const input = document.getElementById(item);
+				const display = document.getElementById('display-' + item);
+				if(input) input.style.display = 'block';
+				if(display) display.style.display = 'none';
+			});
+			document.getElementById('Save').style.display = 'inline-block';
+		}else{
 			showForm = true;
-				this.value = 'Edit Profile';
-				arr.forEach(function(item){
-					document.getElementById(item).style.visibility = 'hidden';
-				})};
+			this.innerHTML = '<i class="fas fa-edit"></i> Edit Profile';
+			this.classList.remove('cancel-mode');
+			arr.forEach(function(item){
+				const input = document.getElementById(item);
+				const display = document.getElementById('display-' + item);
+				if(input) input.style.display = 'none';
+				if(display) display.style.display = 'inline';
+			});
+			document.getElementById('Save').style.display = 'none';
+		}
 
 	});
-
-		</script>
-		</ul>
-
-	</div>
+	</script>
 </body>
 
 </html>

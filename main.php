@@ -10,31 +10,50 @@
 
 
 	function loopCheck($arr, $query){
-	
-		if(!empty($arr) && $query != null){
-			echo '<table>';
-			echo '<th style="colspan:' . count($arr) . '">Users</th>';	
-			
-			foreach($arr as $element){
-						
-				$contains = array_filter($element, function($item){
-			
-				return strpos($item, $query) !== false;	
+		if (!empty($arr) && $query != null) {
+			echo '<div style="display: flex; flex-wrap: wrap; gap: 1em;">'; // Start responsive card container
+
+			foreach ($arr as $element) {
+				$contains = array_filter($element, function ($item) use ($query) {
+					return strpos($item, $query) !== false;
 				});
-				
-				if(!empty($contains)){
-					echo '<tr>';
-					foreach($element as $e){
-						echo '<td>' . $e . '</td>';
+
+				if (!empty($contains)) {
+					echo '<div style="border: 1px solid #ccc; border-radius: 8px; padding: 1em; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); flex: 1 1 calc(33.333% - 1em); max-width: calc(33.333% - 1em);">';
+					echo '<table style="width: 100%; border-collapse: collapse;">';
+					foreach ($element as $e) {
+						echo '<tr><td style="padding: 0.5em; border-bottom: 1px solid #ddd;">' . htmlspecialchars($e) . '</td></tr>';
 					}
-					echo '</tr>';
-				}		
+					echo '</table>';
+					echo '</div>';
+				}
 			}
 
-			echo '</table>';
-			}
+			echo '</div>'; // End responsive card container
+		}
 	}
-	
+
+	function displayNews($newsItems) {
+		echo '<div style="margin-top: 2em; text-align: center;">'; // Center the news section
+		echo '<h2 style="font-size: 24px; color: #333;">Latest News</h2>';
+		echo '<ul style="list-style: none; padding: 0; display: inline-block; text-align: left;">'; // Inline-block for centering
+
+		foreach ($newsItems as $news) {
+			echo '<li style="margin-bottom: 1em; padding: 1em; border: 1px solid #ccc; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: flex; align-items: center;">';
+			if (!empty($news['thumbnail'])) { // Add thumbnail if available
+				echo '<img src="' . htmlspecialchars($news['thumbnail']) . '" alt="Thumbnail" style="width: 80px; height: 80px; border-radius: 8px; margin-right: 1em;">';
+			}
+			echo '<div>';
+			echo '<h3 style="margin: 0; font-size: 20px; color: #007BFF;">' . htmlspecialchars($news['title']) . '</h3>';
+			echo '<p style="margin: 0.5em 0; color: #555;">' . htmlspecialchars($news['description']) . '</p>';
+			echo '<a href="' . htmlspecialchars($news['link']) . '" style="color: #007BFF; text-decoration: none;">Read more</a>';
+			echo '</div>';
+			echo '</li>';
+		}
+
+		echo '</ul>';
+		echo '</div>';
+	}
 
 	if(session_status() === PHP_SESSION_NONE){
 
@@ -270,98 +289,75 @@
 		case 'Search':
 
 			$_SESSION['page'] = 'search.php';
+			
+			// Add Font Awesome and custom stylesheet
+			echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">';
+			echo '<link rel="stylesheet" href="style.css">';
+			
 			include("search.php");
 
-		//	$query = filter_input(INPUT_POST, 'query') ?? "pp";
 			$users = getUsers($db);
 			$profs = getProfs($db);
 			$acts = getActivities($db, $_SESSION['current']->getID());
 			$books = getBookings($db, $_SESSION['current']->getID());
 			$apts = getAppointments($db, $_SESSION['current']->getID());
-			
-		//	if($query != NULL){
-			echo '<table>';
-		//	echo '<th style="colspan:10">Header</th>';	
-			$arrays = [$users, $profs, $acts, $books, $apts];
-			$i = 0;
-			$size = 0;
-			$headers = ['Users', 'Doctors', 'Activities', 'Bookings', 'Appointments'];	
-			
-			foreach($arrays as $array){
-				
-	
-				if(!empty($array)){
-					echo '<table style="margin: 0 auto; text-align: center">';
-					if($headers[$i] == 'Users'){
-						$size = count($array)-1;
-					}else{
-						$size = count($array);
-					}
-				echo '<th style="colspan:' . $size . '; font-size: 24px">' . $headers[$i++] . '</th>';	
-				//loop here for headers	
-				$query = filter_input(INPUT_POST, 'query') ?? "";
-				foreach($array as $index => $element){
-					$contains = array_filter($element, function($item){
-						global $query;
-						
-					return strpos($item, $query) !== false;	
-					});
-					
-					if(!empty($contains)){
-						echo '<tr>';
-						$prev = '';
-						$prevKey = '';
-						$j = 0;	
-						$keys = array_keys($element);
-						$pass = true;
-					//	echo var_dump($element);
 
-						foreach($element as $ind => $e){											if($headers[$i-1] == 'Users' && $e == $element[2]){
-						}else{	
-							//loop
-							$offset = 0;
-							$pos = 0;
-							$positions = [];
-							
+			echo '<div class="search-container">';
 
-							if(str_contains($e, $query)){
-
-								$e = str_replace($query, '<span style="background-color: yellow">' . $query . '</span>', $e); 
-							}
-							
-							
-							//no passwords shown
-							if($headers[$i-1] == 'Users' && $e == $element[2]){
-																										     $pass = true;
-							}
-
-							if($e !== 0 && $e == null){
-								
-								$e = ' ';
-							}	
-											
-
-							
-								if(!$pass && $e != $prev){
-								
-									echo '<td style="border: solid 2px black; font-size: 18px; padding: 1em">' . $e . '</td>';
-									$pass = true;	
-								}else{
-									$pass = false;
-								}
-							}	
-					
-						}
-						echo '</tr>';
-					}	
+			// User section
+			if (!empty($users)) {
+				echo '<div class="search-card">';
+				echo '<h3>Users</h3>';
+				echo '<i class="fas fa-users"></i>';
+				echo '<ul>';
+				foreach ($users as $user) {
+					echo '<li>' . htmlspecialchars($user['name']) . '</li>';
 				}
+				echo '</ul>';
+				echo '</div>';
+			}
 
-				echo '</table>';
+			// Activities section
+			if (!empty($acts)) {
+				echo '<div class="search-card">';
+				echo '<h3>Activities</h3>';
+				echo '<i class="fas fa-running"></i>';
+				echo '<ul>';
+				foreach ($acts as $activity) {
+					echo '<li>' . htmlspecialchars($activity['description']) . '</li>';
 				}
-			
-		}
-			
-		exit;
+				echo '</ul>';
+				echo '</div>';
+			}
+
+			// Bookings section
+			if (!empty($books)) {
+				echo '<div class="search-card">';
+				echo '<h3>Bookings</h3>';
+				echo '<i class="fas fa-calendar-alt"></i>';
+				echo '<ul>';
+				foreach ($books as $booking) {
+					echo '<li>' . htmlspecialchars($booking['description']) . '</li>';
+				}
+				echo '</ul>';
+				echo '</div>';
+			}
+
+			// Appointments section
+			if (!empty($apts)) {
+				echo '<div class="search-card">';
+				echo '<h3>Appointments</h3>';
+				echo '<i class="fas fa-user-md"></i>';
+				echo '<ul>';
+				foreach ($apts as $appointment) {
+					echo '<li>' . htmlspecialchars($appointment['description']) . '</li>';
+				}
+				echo '</ul>';
+				echo '</div>';
+			}
+
+			echo '</div>';
+			exit;
 
 		case 'Monitoring':
 			
