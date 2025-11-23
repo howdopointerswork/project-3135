@@ -10,7 +10,8 @@
     </head>
     
     <body>
-        <h1 class="auth-title">Log In</h1>
+        <div class="login-gradient-wrapper">
+            <h1 class="auth-title login-title">Login to Your WyseCare Account</h1>
         
             <form action="main.php" method="post" class="signup-form">
                 <div class="signup-row">
@@ -28,11 +29,12 @@
                 </div>
             </form>
 
-            <p  style="text-align:center;" >Don't have an account?</p>
+            <p style="text-align:center; color: #ffffff;">Don't have an account?</p>
 
             <form action="main.php" method="post" style="margin:18px auto 0;max-width:280px;text-align:center; padding-bottom:40px;">
                 <input class="auth-btn" type="submit" value="Sign Up" name="action">
             </form>
+        </div>
     </body>
 
 </html>

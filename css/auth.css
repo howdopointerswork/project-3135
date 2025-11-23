@@ -10,6 +10,19 @@
     --accent-end: #ffb400;
 }
 
+/* Login page specific styles */
+.login-gradient-wrapper {
+    background: linear-gradient(135deg, #00008B 0%, #1e3a8a 50%, #2563eb 100%);
+    padding: 2em 0 3em 0;
+}
+
+.login-title {
+    color: #ffffff !important;
+    font-size: 36px !important;
+    margin-top: 3em !important;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
 /* Title for auth pages (signup/login) */
 .auth-title{
     text-align: center;
@@ -25,6 +38,12 @@ html, body, .signup-form, .auth-card {
     font-family: 'Stack Sans Text', sans-serif;
 }
 
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f5e6d3;
+}
+
 /* General form container used on signup page */
 .signup-form,
 .auth-card{
@@ -32,7 +51,7 @@ html, body, .signup-form, .auth-card {
     max-width: var(--auth-max-width);
     margin: 28px auto;
     padding: 20px 22px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 10px 28px rgba(0,0,0,0.12);
     border: 1px solid rgba(0,0,0,0.06);
