@@ -17,6 +17,7 @@ include ('nav.php');
     <head>
         <meta charset="utf-8">
         <title>Dashboard</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="css/main.css">
         <link rel="stylesheet" href="css/dash.css">
 
@@ -30,19 +31,25 @@ $newdate = $date->modify('-1 day');
 	<h1 id="greeting">Hello, <?php echo $_SESSION['current']->getName();?></h1>
 	<h2 style="text-align: center"><?php echo $newdate->format("Y-m-d") . " " . date("H:i:s", time()-28800); ?></h2>
 
-	<table style="margin: 0 auto; font-size: 24px; text-align: center;">
-	<tr>
-		<th style="font-size: 48px; padding: 2em;">Activities</th>
-		<th style="font-size: 48px; padding: 2em;">Bookings</th>
-		<th style="font-size: 48px; padding: 2em;">Appointments</th>
-	</tr>
+	<div class="dashboard-stats-container">
+		<div class="stat-card">
+			<i class="fas fa-running stat-icon"></i>
+			<h3 class="stat-title">Activities</h3>
+			<div class="stat-number"><?php if(!empty($_SESSION['activities'])){ echo count($_SESSION['activities']); } else { echo '0'; } ?></div>
+		</div>
 
-	<tr>
-	<td style="border: solid 2px black; font-size: 32px;"><?php if(!empty($_SESSION['activities'])){ echo count($_SESSION['activities']); }?></td>
-	<td style="border: solid 2px black; font-size: 32px;"><?php if(!empty($_SESSION['bookings'])){ echo count($_SESSION['bookings']); }?></td>
-	<td style="border: solid 2px black; font-size: 32px;"><?php if(!empty(getAppointments($db, $_SESSION['current']->getID()))){ echo count(getAppointments($db, $_SESSION['current']->getID())); } ?></td>
-	</tr>
-	</table>
+		<div class="stat-card">
+			<i class="fas fa-calendar-alt stat-icon"></i>
+			<h3 class="stat-title">Bookings</h3>
+			<div class="stat-number"><?php if(!empty($_SESSION['bookings'])){ echo count($_SESSION['bookings']); } else { echo '0'; } ?></div>
+		</div>
+
+		<div class="stat-card">
+			<i class="fas fa-user-md stat-icon"></i>
+			<h3 class="stat-title">Appointments</h3>
+			<div class="stat-number"><?php if(!empty(getAppointments($db, $_SESSION['current']->getID()))){ echo count(getAppointments($db, $_SESSION['current']->getID())); } else { echo '0'; } ?></div>
+		</div>
+	</div>
 	<h1 style="text-align: center;">News</h1>	
 	<section id="rss" style="margin-top: 2em;">
 	<?php 
