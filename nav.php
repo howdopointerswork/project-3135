@@ -21,7 +21,7 @@ if(session_status() === PHP_SESSION_NONE){
 		echo '<input type="submit" name="action" value="' . $name .  '" style="margin: 0.5em; font-size: 18px; padding: 0.2em;" id="' . $name . '">';		
 		
 		if($name == 'Search'){
-			echo '<input type="text" name="query">';
+			echo '<input type="text" name="query" style="font-size: 18px; height: 20px; margin-top: 0.5em">';
 		}	
 	}
 
@@ -35,7 +35,7 @@ if(session_status() === PHP_SESSION_NONE){
 //	echo '<script> document.getElementById("display").style.visibility = "visible"; </script>';
 //	echo '<form method="post" action="main.php">';
 	echo '<div class="alerts-container">';
-	echo '<button class="alerts-btn" id="alerts"><i class="fas fa-bell"></i> Alerts: <span class="alerts-count">' . $_SESSION['alerts']->getSize() . '</span></button>';
+	echo '<button style="color: black" class="alerts-btn" id="alerts"><i class="fas fa-bell"></i> Alerts: <span class="alerts-count">' . $_SESSION['alerts']->getSize() . '</span></button>';
 	//	echo '</form>'
 
 	echo '<div id="alertTbl" class="alerts-dropdown">';

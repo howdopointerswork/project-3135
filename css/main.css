@@ -1,10 +1,12 @@
-form { 
+/*form { 
 
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-}
+}*/
+
+
 
 body{	
 	color: #000000;
@@ -78,3 +80,5 @@ ul{
 	}
 
 }
+
+

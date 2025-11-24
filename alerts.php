@@ -255,11 +255,10 @@
 				case 1:
 					return 'green';
 				case 2:
-					return 'yellow';
+					return 'orange';
 				case 3:
 					return 'red';
-				default:
-					return 'idk';
+				
 			}
 
 		}	

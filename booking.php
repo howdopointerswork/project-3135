@@ -11,15 +11,14 @@ if (session_status() === PHP_SESSION_NONE) {
 include('nav.php');
 
 // Debug (remove in production)
-echo 'Logged in as: ' . $_SESSION['current']->getName() . 
-     "<br> User ID: " . $_SESSION['current']->getID() . "<br>";
 ?>
 
 <html>
 <head>
     <title>Bookings</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dash.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         table { border-collapse: collapse; width: 90%; margin: 2rem auto; }
         th, td { border: 2px solid black; padding: 1em; text-align: center; }
@@ -35,9 +34,9 @@ echo 'Logged in as: ' . $_SESSION['current']->getName() .
 <body>
 
     <!-- Back Button -->
-    <form method='post' action='main.php'>
+  <!--  <form method='post' action='main.php'>
         <input type='submit' name='action' value='Back' style='font-size: 18px; padding: 0.5em; margin: 1rem;'>
-    </form>
+    </form> -->
 
     <h1 style="text-align: center;">Bookings</h1>
 
@@ -83,12 +82,9 @@ if($_SESSION['current']->getPrivilege() > 0){
 
 
 	echo '</form>';
-
-
-}else{
-
-	echo 'base';
 }
+
+
 	
 	?>
 

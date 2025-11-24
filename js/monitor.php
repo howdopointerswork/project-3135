@@ -19,12 +19,11 @@
 <head>
 	<title>Monitoring</title>
 	<meta charset='utf-8'>
-	<link rel="stylesheet" href="css/dash.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<link rel="stylesheet" href="css/main.css">
 </head>
 
 <body>
-	<h1 style="text-align: center;">Monitoring</h1>
+	<h1 style="text-align: center; letter-spacing: 0.2em; border-bottom: 10px solid #2d3a91">Monitoring</h1>
 	
 	<div id="monitor_body" style="text-align: center">
 	
@@ -59,7 +58,7 @@
 			echo '<form method="post" action="main.php">';		
 
 			echo '<span style="font-size: 24px;">Attribute to Monitor:</span> 
-				<select name="toMonitor" style="font-size: 24px; margin: 0 auto;">';
+				<select name="toMonitor" style="font-size: 36px; margin: 0 auto;">';
 			
 			foreach($arr as $item){
 
@@ -102,7 +101,7 @@
 				$cat = $monitor[0];
 					
 				if($monitor[0] > 0){
-					echo '<div>';
+					echo '<div style="background-color: white">';
 					echo "<p style='font-size: 24px'><br>Currently Monitoring: " . $arr[$cat] . "<br></p>"; 
 					echo "<span id='avg'>Current Average: $avg</span>";
 					echo '</div>';
@@ -179,9 +178,9 @@
 					}else if($avg >= ($monitor[1]+($dev*2)) && $avg < ($monitor[1] + ($dev*4))){
 						$code = 4;
 						$status = 2;
-						echo "$byID.color='orange';$close";
+						echo "$byID.color='yellow';$close";
 					//	echo "<td>Status</td>";
-						echo "<p style='color: orange'><br>Moderate</p>";
+						echo "<p style='color: yellow'><br>Moderate</p>";
 					}else{
 						$code = 6;
 						$status = 3;
@@ -205,8 +204,8 @@
 					}else if($avg < ($monitor[1]-($dev*2)) && $avg >= ($monitor[1] - ($dev*4))){
 						$code = 3;
 						$status = 2;
-						echo "$byID.color='orange';$close";
-						echo "<p style='color: orange'><br>Moderate</p>";
+						echo "$byID.color='yellow';$close";
+						echo "<p style='color: yellow'><br>Moderate</p>";
 					}else{
 						$code = 5;
 						$status = 3;

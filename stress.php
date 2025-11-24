@@ -18,7 +18,8 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
 <head>
     <title>Stress Tracker</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dash.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .container { max-width: 1100px; margin: 2em auto; padding: 1em; }
         .form-box { background: #f8f8f8; padding: 2em; border: 2px solid #333; border-radius: 12px; margin: 2em auto; max-width: 640px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }

@@ -20,14 +20,15 @@ include('nav.php');
     <head>
         <title>Log Activities</title>
         <meta charset="utf-8">
-        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/dash.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
 
     <body>
     
         
         
-        <h1 id="log_title" style="text-align: center;">Activities</h1>
+        <h1 id="log_title" style="text-align: center">Activities</h1>
         
             
         
@@ -63,9 +64,11 @@ include('nav.php');
 
         <?php
 	    
-$results = getActivities($GLOBALS['db'], $_SESSION['current']->getID());
+        echo '<button id="add" name="add" style="font-Size: 24px;">Log Activity</button>';
+        
+$results = getActivities($db, $_SESSION['current']->getID());
 
-	    $names = ['Calories', 'Sleep', 'Water', 'Exercise', 'Medication', 'User ID', 'ID', 'Date']; //remove ID
+	    $names = ['Log ID', 'User ID', 'Calories', 'Sleep', 'Water', 'Exercise', 'Medication', 'Date']; //remove ID
 
 
         if(!empty($results)){
@@ -74,13 +77,13 @@ $results = getActivities($GLOBALS['db'], $_SESSION['current']->getID());
 
             echo "<tr>";
 		
-	    echo "<td style='border: 2px solid black; text-align: center; padding: 2.5em; font-weight: bold;'>";
+	    echo "<td style='border: 2px solid black; text-align: center; padding: 0.5em; font-weight: bold;'>";
 	    echo "Manage";
 	    echo "</td>";
 	    
 	    foreach($names as $nam){
             
-                echo "<td style='border: 2px solid black; text-align: center; padding: 3em; font-weight: bold;'>";
+                echo "<td style='border: 2px solid black; text-align: center; font-weight: bold;'>";
 
                     echo $nam;
 
@@ -91,7 +94,8 @@ $results = getActivities($GLOBALS['db'], $_SESSION['current']->getID());
 			
 
             echo "</tr>";
-            //add date/time of logging
+	    //add date/time of logging
+	    //
             foreach($results as $result){
                 
                 echo "<tr>";
@@ -101,7 +105,8 @@ $results = getActivities($GLOBALS['db'], $_SESSION['current']->getID());
 		echo "<form method='post' method='main.php'>";
 
 		echo "<input type='submit' name='action' value='Delete Activity' style='font-size: 18px; padding: 0.5em;'>";
-		echo "<input type='hidden' name='actID' value=$result[6]>";		
+		echo "<input type='hidden' name='actID' value=$result[1]>";
+		echo "<input type='hidden' name='logID' value=$result[0]>";		
 		echo "<input type='submit' name='action' value='Edit Activity' style='font-size: 18px; padding: 0.5em;'>";
 		echo "</form>";
 
@@ -109,7 +114,7 @@ $results = getActivities($GLOBALS['db'], $_SESSION['current']->getID());
 
                 foreach($result as $index => $val){
                      if(is_numeric($index)){
-                        echo "<td style='border: solid 2px black; padding: 3.5em; font-size: 18px;'>";
+                        echo "<td style='border: solid 2px black; padding:2em; font-size: 18px;'>";
                         echo "$val";
 
                         //edit here
@@ -133,7 +138,7 @@ $results = getActivities($GLOBALS['db'], $_SESSION['current']->getID());
 
 ?>
         
-        <button id="add" name="add">Log Activity</button>
+      <!--  <button id="add" name="add">Log Activity</button> -->
         
 <script>
 

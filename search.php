@@ -1,19 +1,16 @@
 <?php 
 include('nav.php');
 
-echo 'search';
+//echo 'search';
 
-echo '<form method="post" action="main.php">';
+echo '<form method="post" action="main.php" style="margin-top: 4em;">';
 
-echo '<input type="text" name="query">';
-echo '<input type="submit" name="action" value="Search">';
+echo '<input type="text" name="query" style="font-size: 32px; margin-right: 0.5em">';
+echo '<input type="submit" name="action" value="Search" style="font-size: 32px">';
 
 echo '</form>';
 //filters
 //search bar
-
-
-
 ?>
 
 
@@ -23,7 +20,7 @@ echo '</form>';
 
 <head>
 	<title>Search</title>
-	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="css/dash.css">
 </head>
 
 </html>

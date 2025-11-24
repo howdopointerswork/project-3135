@@ -159,30 +159,55 @@
     }
 
 
-    function deleteActivity($db, $id){
+    function deleteActivity($db, $id, $logID){
 
-	$qry = 'DELETE FROM logging WHERE id = :id';
+	$qry = 'DELETE FROM logging WHERE userID = :id AND logID = :logID';
 
 	$stmnt = $db->prepare($qry);
 	
 	$stmnt->bindValue(':id', $id);
 
+	$stmnt->bindValue(':logID', $logID);
+
 	$stmnt->execute();
 
     }
 
-    function getActivity($db, $id){
+    function getActivity($db, $id, $logID){
 
-	$qry = 'SELECT * FROM logging WHERE id = :id';
+	$qry = 'SELECT * FROM logging WHERE id = :id AND logID = :logID';
 
 	$stmnt = $db->prepare($qry);
 
 	$stmnt->bindValue(':id', $id);
 
+	$stmnt->bindValue(':logID', $logID);
+
 	$stmnt->execute();
 
 	return $stmnt->fetch();
 
+    }
+
+    function getSum($db, $id, $field){
+
+
+	    $qry = 'SELECT * FROM logging WHERE userID = :id';
+	    $stmnt = $db->prepare($qry);
+
+	    $stmnt->bindValue(':id', $id);
+
+	    $stmnt->execute();
+
+	    $result = $stmnt->fetchAll(PDO::FETCH_ASSOC);
+	    $sum = 0;	
+
+	    foreach($result as $res){
+
+		$sum += (int) $res[$field];
+	    }
+
+	    return $sum;		
     }
 
     
@@ -503,7 +528,8 @@ function updateBooking($db, $bookingId, $date, $description) {
     $stmt->bindValue(':id', $bookingId, PDO::PARAM_INT);
     $stmt->execute();
 }
-
+   
+   
 function addStressLevel($db, $userId, $date, $level, $notes = '') {
     $qry = "INSERT INTO stress_levels (user_id, log_date, stress_level, notes) 
             VALUES (:user_id, :date, :level, :notes)
@@ -531,7 +557,6 @@ function getStressLevel($db, $id) {
     $stmt->execute();
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
-    
 
 ?>
 
