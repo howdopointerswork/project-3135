@@ -22,5 +22,7 @@ echo '</form>';
 	<title>Search</title>
 	<link rel="stylesheet" href="css/dash.css">
 </head>
+<body>
+</body>
 
 </html>

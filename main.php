@@ -350,7 +350,7 @@
 				echo '<tr>';
 				for($i = 0; $i<6; $i++){
 
-					echo '<th style="margin: 1em"><strong>' . $cols[$i] . '</strong></th>';
+					echo '<th style="padding: 1em"><strong>' . $cols[$i] . '</strong></th>';
 				
 				}
 
@@ -423,7 +423,7 @@
 			
 				for($i = 0; $i<3; $i++){
 
-					echo '<th style="margin: 1em"><strong>' . $cols[$i] . '</strong></th>';
+					echo '<th style="padding: 1em"><strong>' . $cols[$i] . '</strong></th>';
 				
 				}
 
@@ -692,6 +692,7 @@
 			setMonitor($db, $_SESSION['current']->getID(), $selected, $threshold, $_SESSION['date']); 
 			echo "Monitoring set successfully";       
 			include('monitor.php');
+			exit;
 
 		case 'Add Booking':
         $date   = filter_input(INPUT_POST, 'booking_date');

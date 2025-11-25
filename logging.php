@@ -21,7 +21,7 @@ include('nav.php');
         <title>Log Activities</title>
         <meta charset="utf-8">
         <link rel="stylesheet" href="css/dash.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
 
     <body>
@@ -36,8 +36,28 @@ include('nav.php');
             <form method='post' action='main.php'>
         
             <input type="hidden" name="userid" value=<?php echo $_SESSION['current']->getID() ?>>
+
+            <?php
+                $categories = ['calories', 'sleep', 'water', 'exercise', 'meds'];
+                
+                $type = 'text';
+
+                $labels = ['Calorie Intake', 'Hours of Sleep', 'Water Intake (mL)', 'Hours of Exercise', 'Medication Taken?'];
+
+                echo '<ul style="list-style-type: none">';
+
+                foreach($categories as $index => $cat){
+
+                    $type = $index === count($labels)-1 ? 'checkbox' : 'text';
+
+
+                    echo "<li><label style='display: block' for=$cat>$labels[$index]</label><input type=$type name=$cat></li>";
+                }
+
+                echo '</ul>';
+            ?>
             
-            <label for="calories">Calorie Intake</label>
+           <!-- <label for="calories">Calorie Intake</label>
             <input type="text" name="calories">
             
             <label for="sleep">Hours of Sleep</label>
@@ -51,8 +71,8 @@ include('nav.php');
 
             <label for="meds">Medication Taken?</label>
             <input type="checkbox" name="meds">
-
-            <input type="submit" name="action" value="Add Activity">
+-->
+            <input type="submit" name="action" value="Add Activity"> 
 
 
 
@@ -73,7 +93,7 @@ $results = getActivities($db, $_SESSION['current']->getID());
 
         if(!empty($results)){
 
-            echo "<table style='display: flex; justify-content: center; align-items: center;'>";
+            echo "<table style='display: flex; justify-content: center; align-items: center; width: 90%;'>";
 
             echo "<tr>";
 		
@@ -143,7 +163,16 @@ $results = getActivities($db, $_SESSION['current']->getID());
 <script>
 
 document.getElementById('add').addEventListener('click', function(){
-    document.getElementById('logging_system').style.display = '';
+    
+
+    let button = document.getElementById('logging_system');
+
+
+    button.style.display = '';
+    button.style.listStyleType = 'none';
+
+
+
 
 
 

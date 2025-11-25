@@ -19,6 +19,7 @@ include('nav.php');
 <title>User Profile - <?php echo $_SESSION['current']->getName();?></title>
 <meta charset='utf-8'>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link rel="stylesheet" href="css/dash.css">
 <link rel="stylesheet" href="css/profile.css">
 </head>
 
