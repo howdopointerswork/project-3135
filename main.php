@@ -1,6 +1,4 @@
 <?php
-
-
 //	require('user.php')
 	require_once('db.php');
 	require_once('user.php');
@@ -9,10 +7,6 @@
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
 	error_reporting(E_ALL);
-
-
-							
-					
 
 
 	function loopCheck($arr, $query){
@@ -307,33 +301,17 @@
 			$acts = getActivities($db, $_SESSION['current']->getID());
 			$books = getBookings($db, $_SESSION['current']->getID());
 			$apts = getAppointments($db, $_SESSION['current']->getID());
-			$query = filter_input(INPUT_POST, 'query');
 
 			echo '<div class="search-container">';
 
 			// User section
-
-
 			if (!empty($users)) {
 				echo '<div class="search-card">';
 				echo '<h3>Users</h3>';
 				echo '<i class="fas fa-users"></i>';
-				echo '<ul style="list-style-type: none">';
-				
+				echo '<ul>';
 				foreach ($users as $user) {
-					$username = $user['username'];
-					
-				if(str_contains($user['username'], $query)){
-
-				$username = str_replace($query, '<span style="background-color: yellow">' . $query . '</span>', $username); 
-
-				echo '<li>' . $username . '</li>';
-										//loop
-
-			}else{
-
-				continue;
-			}
+					echo '<li>' . htmlspecialchars($user['name']) . '</li>';
 				}
 				echo '</ul>';
 				echo '</div>';
@@ -344,48 +322,11 @@
 				echo '<div class="search-card">';
 				echo '<h3>Activities</h3>';
 				echo '<i class="fas fa-running"></i>';
-				$cols = ['Calories', 'Sleep', 'Water', 'Exercise', 'Meds Taken', 'Date'];
-			
-				echo '<table>';
-				echo '<tr>';
-				for($i = 0; $i<6; $i++){
-
-					echo '<th style="padding: 1em"><strong>' . $cols[$i] . '</strong></th>';
-				
-				}
-
+				echo '<ul>';
 				foreach ($acts as $activity) {
-
-
-					$cals = $activity['calories'];
-					$slp = $activity['sleep'];
-					$wtr = $activity['water'];
-					$exr = $activity['exercise'];
-					$meds = $activity['meds'];
-					$date = $activity['log_date'];
-
-					$actCols = [$cals, $slp, $wtr, $exr, $meds, $date];
-				
-				echo '<tr>';
-				foreach($actCols as $col){
-					
-					if(str_contains($col, $query)){
-				
-
-					$col = str_replace($query, '<span style="background-color: yellow">' . $query . '</span>', $col); 
-
-
-					}else{
-						continue;
-					}
-					echo '<td>' . $col . '</td>';
+					echo '<li>' . htmlspecialchars($activity['description']) . '</li>';
 				}
-
-			
-					echo '</tr>';
-
-				}
-				echo '</table>';
+				echo '</ul>';
 				echo '</div>';
 			}
 
@@ -394,19 +335,9 @@
 				echo '<div class="search-card">';
 				echo '<h3>Bookings</h3>';
 				echo '<i class="fas fa-calendar-alt"></i>';
-				echo '<ul style="list-style-type: none">';
+				echo '<ul>';
 				foreach ($books as $booking) {
-
-					$desc = $booking['description'];
-
-					if(str_contains($desc, $query)){
-						$desc = str_replace($query, '<span style="background-color: yellow">' . $query . '</span>', $desc); 
-					}else{
-
-					continue;
-				}
-
-				echo '<li>' . $desc . '</li>';
+					echo '<li>' . htmlspecialchars($booking['description']) . '</li>';
 				}
 				echo '</ul>';
 				echo '</div>';
@@ -417,85 +348,12 @@
 				echo '<div class="search-card">';
 				echo '<h3>Appointments</h3>';
 				echo '<i class="fas fa-user-md"></i>';
-				$cols = ['Professional ID', 'Date', 'Time'];
-			
-				echo '<table>';
-			
-				for($i = 0; $i<3; $i++){
-
-					echo '<th style="padding: 1em"><strong>' . $cols[$i] . '</strong></th>';
-				
-				}
-
+				echo '<ul>';
 				foreach ($apts as $appointment) {
-
-					$pid = $appointment['professional_id'];
-					$date = $appointment['appointment_date'];
-					$time = $appointment['appointment_time'];
-
-					$cols = [$pid, $date, $time];
-					echo '<tr>';
-					foreach($cols as $col){
-						if(str_contains($col, $query)){
-							$col = str_replace($query, '<span style="background-color: yellow">' . $query . '</span>', $col); 
-							echo '<td>' . $col . '</td>';
-						}else{
-
-							continue;
-						}
-				
-
-					
-				
-					
+					echo '<li>' . htmlspecialchars($appointment['description']) . '</li>';
 				}
-				echo '</tr>';
-				}
-				echo '</table>';
+				echo '</ul>';
 				echo '</div>';
-			}
-
-
-			if (!empty($profs)) {
-				echo '<div class="search-card">';
-				echo '<h3>Professionals</h3>';
-				echo '<i class="fas fa-user-md"></i>';
-						$cols = ['ID', 'Name', 'Specialty', 'ZIP'];
-			
-				echo '<table>';
-				echo '<tr>';
-				for($i = 0; $i<4; $i++){
-
-					echo '<th style="margin: 1em"><strong>' . $cols[$i] . '</strong></th>';
-				
-				}
-
-				foreach ($profs as $prof) {
-
-					$id = $prof['id'];
-					$name = $prof['name'];
-					$spc = $prof['specialty'];
-					$zip = $prof['zip'];
-
-					$cols = [$id, $name, $spc, $zip];
-
-					echo '<tr>';
-					foreach($cols as $col){
-
-						if(str_contains($col, $query)){
-								$col = str_replace($query, '<span style="background-color: yellow">' . $query . '</span>', $col); 
-							echo '<td>' . $col . '</td>';
-						}else{
-
-							continue;
-						}
-	
-					
-					}
-					echo '</tr>';
-				}
-				echo '</table>';
-			
 			}
 
 			echo '</div>';
@@ -520,6 +378,7 @@
 			$deleteCode = filter_input(INPUT_POST, 'Code');
 			
 			$_SESSION['alerts']->destroyAlert($deleteCat, $deleteCode);
+			echo 'size: ' . count($_SESSION['alerts']->getArray());
 			$current = $_SESSION['page'];
 			include($current);
 			break;	
@@ -559,8 +418,7 @@
 		case 'Delete Activity':
 			
 			$actID = filter_input(INPUT_POST, 'actID');
-			$logID = filter_input(INPUT_POST, 'logID');
-			deleteActivity($db, $actID, $logID);
+			deleteActivity($db, $actID);
 			
 			include('logging.php');
 			exit;
@@ -569,8 +427,7 @@
 		case 'Edit Activity':
 
 			$actID = filter_input(INPUT_POST, 'actID');
-			$logID = filter_input(INPUT_POST, 'logID');
-			$activity = getActivity($db, $actID, $logID);
+			$activity = getActivity($db, $actID);
 
 			include('editactivity.php');
 			exit;
@@ -580,9 +437,8 @@
 			
 			$data = filter_input(INPUT_POST, 'data', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
 			$actID = filter_input(INPUT_POST, 'actID');
-			$logID = filter_input(INPUT_POST, 'logID');
 
-			updateActivity($db, $data, $actID, $logID);
+			updateActivity($db, $data, $actID);
 
 			include('logging.php');
 			exit;
@@ -692,7 +548,6 @@
 			setMonitor($db, $_SESSION['current']->getID(), $selected, $threshold, $_SESSION['date']); 
 			echo "Monitoring set successfully";       
 			include('monitor.php');
-			exit;
 
 		case 'Add Booking':
         $date   = filter_input(INPUT_POST, 'booking_date');
