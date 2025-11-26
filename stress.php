@@ -301,14 +301,6 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
     <?php if (!empty($entries)): ?>
         <h2 style="text-align: center; margin: 2em 0;">Your Recent Stress Levels</h2>
 
-        <!-- ONE-CLICK "Compare Last 7 Days" -->
-        <div style="text-align: center; margin: 2em 0;">
-            <button type="button" onclick="compareLast7Days()" class="btn btn-success"
-                    style="font-size: 20px; padding: 16px 40px;">
-                Compare Last 7 Days
-            </button>
-        </div>
-
         <form method="post" action="main.php" id="compareForm">
             <!-- This hidden field fixes the login redirect bug -->
             <input type="hidden" name="action" value="Compare Selected Days">
@@ -350,8 +342,15 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
                 </tbody>
             </table>
 
-            <div style="text-align: center; margin: 2.5em 0;">
-                <input type="submit" name="action" value="Compare Selected Days" class="btn btn-primary">
+            <!-- UPDATED: Compare buttons side by side after table -->
+            <div style="text-align: center; margin: 2.5em 0; display: flex; justify-content: center; align-items: center; gap: 1em; flex-wrap: wrap;">
+                <button type="button" onclick="compareLast7Days()" class="btn btn-success"
+                        style="font-size: 20px; padding: 16px 40px;">
+                    Compare Last 7 Days
+                </button>
+                <span style="font-size: 18px; font-weight: 600; color: #333;">or</span>
+                <input type="submit" name="action" value="Compare Selected Days" class="btn btn-primary"
+                       style="font-size: 20px; padding: 16px 40px;">
             </div>
         </form>
     <?php else: ?>
