@@ -21,6 +21,30 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
     <link rel="stylesheet" href="css/dash.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* ADDED: Back button styling matching profile design */
+        .profile-back-btn {
+            padding: 0.75em 1.5em;
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(90deg, #6c757d 0%, #5a6268 100%);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(108,117,125,0.3);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+        }
+        .profile-back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(108,117,125,0.4);
+        }
+        .profile-back-btn i {
+            font-size: 14px;
+        }
+
         .container { max-width: 1100px; margin: 2em auto; padding: 1em; }
         .form-box { background: #f8f8f8; padding: 2em; border: 2px solid #333; border-radius: 12px; margin: 2em auto; max-width: 640px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         textarea { width: 100%; height: 180px; font-size: 16px; padding: 12px; border-radius: 8px; border: 1px solid #ccc; }
@@ -206,13 +230,14 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
 <body>
 
 <div class="container">
-    <h1 style="text-align: center; margin-bottom: 0.5em;">Daily Stress Tracker</h1>
-
-    <!-- Back Button -->
-    <div style="text-align: center; margin: 1.5em;">
-        <form method="post" action="main.php">
-            <input type="submit" name="action" value="Back to Dashboard" class="btn">
+    <!-- UPDATED: Header container with back button matching profile design -->
+    <div style="max-width: 1100px; margin: 2em auto 1em; display: flex; align-items: center; gap: 1em;">
+        <form method="post" action="main.php" style="margin: 0;">
+            <button type="submit" name="action" value="Back to Dashboard" class="profile-back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
         </form>
+        <h1 style="text-align: left; font-size: 36px; color: #111; margin: 0; font-weight: 600;">Daily Stress Tracker</h1>
     </div>
 
     <!-- Log Form -->
