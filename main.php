@@ -1,4 +1,6 @@
 <?php
+
+
 //	require('user.php')
 	require_once('db.php');
 	require_once('user.php');
@@ -7,6 +9,10 @@
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
 	error_reporting(E_ALL);
+
+
+							
+					
 
 
 	function loopCheck($arr, $query){
@@ -159,7 +165,7 @@
 
 				
 				if(is_array($result) && end($result)){
-			
+				
 					if(password_verify($password, getUsername($db, $username)[2])){
 				
 					if(session_status() === PHP_SESSION_NONE){
@@ -168,9 +174,18 @@
 
 
 					$_SESSION['current'] = new User($result[0], $result[1], $result[3], $result[4], $result[5], $result[6], $result[7], $result[9]);
+		
+					//$_SESSION['date'] = date(time()-28800);
+					
+					//$d = date('Y-m-d');
+					
+					$_SESSION['date'] = new DateTime('today')->format('Y-m-d');
+
+				
 
 					$_SESSION['activities'] = getActivities($db, $_SESSION['current']->getID());
 					$_SESSION['bookings'] = getBookings($db, $_SESSION['current']->getID());
+					$_SESSION['alerts'] = new AlertSystem();
 
 					$apts = getAppointments($db, $_SESSION['current']->getID());
 
@@ -194,19 +209,23 @@
 
 							if(!empty($_SESSION['activities'])){
 						//	echo 'logging alert<br>';
-							$time1 = new DateTime($_SESSION['date']);
+							$time1 = new DateTime('yesterday');
 							$time2 = new DateTime($_SESSION['activities'][count($_SESSION['activities'])-1][7]);		
 							//use constructor
 							$diff = $time1->diff($time2);
-							$alert = new Alert(2, 3, '', 0);
-							$alert->setMsg("You haven't logged an activity in " . $diff->days . " day(s)!");
+							if($diff->y == 0 && $diff->m == 0 && $diff->d > 0){
+								$alert = new Alert(2, 3, '', 0);
+								$alert->setMsg("You haven't logged an activity in " . $diff->days . " day(s)!");
+								$_SESSION['alerts']->addAlert($alert);
+							}
 
 							
 
-							$_SESSION['alerts']->addAlert($alert);
+							
 							}
 
-							$bookings = getBookings($db, $_SESSION['current']->getID());	
+							$bookings = getBookings($db, $_SESSION['current']->getID());
+							if(count($bookings) > 0){
 							$recent = new DateTime($bookings[count($bookings)-1]['booking_date']);
 							$diff2 = $time1->diff($recent);
 
@@ -216,6 +235,7 @@
 								$alert2->setMsg("Appointment Notice: Appointment in " . $diff2->days . " day(s) ");
 								$_SESSION['alerts']->addAlert($alert2);
 							}
+						}
 
 
 						}
@@ -260,6 +280,7 @@
 				addUser($db, $field1, $hash, $field3, $field4, $field5, $field6, 'profile.jpg', $_SESSION['date'], 0);
 
 				$_SESSION['current'] = new User(name: $field1, age: $field3, ht: $field4, wt: $field5, gender: $field6, privilege: 0);
+				$_SESSION['current']->setID(getUsername($db, $field1)[0]);
 				include ('dash.php');
 				exit;
 			}else{
@@ -318,17 +339,21 @@
 			$acts = getActivities($db, $_SESSION['current']->getID());
 			$books = getBookings($db, $_SESSION['current']->getID());
 			$apts = getAppointments($db, $_SESSION['current']->getID());
+			$query = filter_input(INPUT_POST, 'query');
 
 			echo '<div class="search-container">';
 
 			// User section
+
+
 			if (!empty($users)) {
 				echo '<div class="search-card">';
 				echo '<h3>Users</h3>';
 				echo '<i class="fas fa-users"></i>';
 				echo '<ul>';
+				
 				foreach ($users as $user) {
-					echo '<li>' . htmlspecialchars($user['name']) . '</li>';
+				echo '<li>' . htmlspecialchars($user['name']) . '</li>';
 				}
 				echo '</ul>';
 				echo '</div>';
@@ -340,9 +365,17 @@
 				echo '<h3>Activities</h3>';
 				echo '<i class="fas fa-running"></i>';
 				echo '<ul>';
+
+
+		
+
 				foreach ($acts as $activity) {
+
+
 					echo '<li>' . htmlspecialchars($activity['description']) . '</li>';
 				}
+
+			
 				echo '</ul>';
 				echo '</div>';
 			}
@@ -354,7 +387,8 @@
 				echo '<i class="fas fa-calendar-alt"></i>';
 				echo '<ul>';
 				foreach ($books as $booking) {
-					echo '<li>' . htmlspecialchars($booking['description']) . '</li>';
+
+							echo '<li>' . htmlspecialchars($booking['description']) . '</li>';
 				}
 				echo '</ul>';
 				echo '</div>';
@@ -362,16 +396,15 @@
 
 			// Appointments section
 			if (!empty($apts)) {
-				echo '<div class="search-card">';
-				echo '<h3>Appointments</h3>';
-				echo '<i class="fas fa-user-md"></i>';
-				echo '<ul>';
 				foreach ($apts as $appointment) {
 					echo '<li>' . htmlspecialchars($appointment['description']) . '</li>';
 				}
 				echo '</ul>';
 				echo '</div>';
 			}
+
+
+			
 
 			echo '</div>';
 			exit;
@@ -395,7 +428,6 @@
 			$deleteCode = filter_input(INPUT_POST, 'Code');
 			
 			$_SESSION['alerts']->destroyAlert($deleteCat, $deleteCode);
-			echo 'size: ' . count($_SESSION['alerts']->getArray());
 			$current = $_SESSION['page'];
 			include($current);
 			break;	
@@ -422,13 +454,13 @@
 			$values[] = filter_input(INPUT_POST, 'exercise');
 			$values[] = filter_input(INPUT_POST, 'meds');
 
-			$values[] = filter_input(INPUT_POST, 'userid'); 
+			//$values[] = filter_input(INPUT_POST, 'userid'); 
 			/*foreach($values as $index => $val){
 
 				echo "$index: $val <br>";
 			}*/
 
-	
+			
 
 			$values[4] = ($values[4] == 'on' ? 1 : 0);
 
@@ -437,8 +469,8 @@
 				if(filter_var($field, FILTER_VALIDATE_INT) !== false){
 			
 					if($index === count($values)-1){
-
-						addActivity($db, $values, $_SESSION['date']);
+						
+						addActivity($db, $values, $_SESSION['date'], $_SESSION['current']->getID());
 						break;						
 
 					}
@@ -461,7 +493,8 @@
 		case 'Delete Activity':
 			
 			$actID = filter_input(INPUT_POST, 'actID');
-			deleteActivity($db, $actID);
+			$logID = filter_input(INPUT_POST, 'logID');
+			deleteActivity($db, $actID, $logID);
 			
 			include('logging.php');
 			exit;
@@ -470,7 +503,8 @@
 		case 'Edit Activity':
 
 			$actID = filter_input(INPUT_POST, 'actID');
-			$activity = getActivity($db, $actID);
+			$logID = filter_input(INPUT_POST, 'logID');
+			$activity = getActivity($db, $actID, $logID);
 
 			include('editactivity.php');
 			exit;
@@ -520,53 +554,58 @@
 			$vals[] = filter_input(INPUT_POST, 'Weight');
 			$vals[] = filter_input(INPUT_POST, 'Gender');
 
-			$set = true;
+		
+			
+		
 
 			foreach($vals as $i => $val){
 
-				if(!empty($val)){
+				if(count($vals) > 0 && $val){
 
 					switch($i){
 				
 						case 0:
-							$vals[$i] = $_SESSION['current']->getName();
+
+							$_SESSION['current']->setName($vals[$i]); 
 							break;
 						case 1:
 
 						if(filter_var($vals[$i], FILTER_VALIDATE_INT) !== false){
 									
-									$vals[$i] = $_SESSION['current']->getAge();
+									$_SESSION['current']->setAge($vals[$i]);
 								}else{
 
-									$alert = new Alert(4, 0, 'Age field only accepts numbers.', 403);
+									$alert = new Alert(4, 0, 'Please fill ALL fields. Age must be a number.', 403);
+									
 									$_SESSION['alerts']->addAlert($alert);
-									$set = false;
+									
 									include('profile.php');
 									exit;
 								}						
 							break;
 						case 2:
 							
-							if(filter_var($vals[$i], FILTER_VALIDATE_INT) !== false){
+							if(filter_var($vals[$i], FILTER_VALIDATE_FLOAT) !== false){
 									
-									$vals[$i] = $_SESSION['current']->getHt();
+									$_SESSION['current']->setHt($vals[$i]);
 								}else{
 
-									$alert = new Alert(4, 0, 'Height field only accepts numbers.', 401);
+									$alert = new Alert(4, 0, 'Please fill ALL fields. Height field only accepts numbers.', 401);
 									$_SESSION['alerts']->addAlert($alert);
-									$set = false;
+								
+
 									include('profile.php');
 									exit;
 								}
 							break;
 						case 3:
 						
-						if(filter_var($vals[$i], FILTER_VALIDATE_INT) !== false){
+						if(filter_var($vals[$i], FILTER_VALIDATE_FLOAT) !== false){
 									
-									$vals[$i] = $_SESSION['current']->getWt();
+									$_SESSION['current']->setWt($vals[$i]);
 								}else{
 
-									$alert = new Alert(4, 0, 'Weight field only accepts numbers.', 402);
+									$alert = new Alert(4, 0, 'Please fill ALL fields. Weight field only accepts numbers.', 402);
 									$_SESSION['alerts']->addAlert($alert);
 									$set = false;
 									include('profile.php');
@@ -576,22 +615,24 @@
 							break;
 						case 4:
 
-							$vals[$i] = $_SESSION['current']->getGender();
+							$_SESSION['current']->setGender($vals[$i]);
 							break;
 
+
+
+
 					}
+				}else{
+
+					$vals[$i] = 0; 
+
 				}
 			}
 			
 			
-			if($set){
-				$_SESSION['current']->setName($vals[0]);
-				$_SESSION['current']->setAge($vals[1]);
-				$_SESSION['current']->setHt((float) $vals[2]);
-				$_SESSION['current']->setWt((float) $vals[3]);
-				$_SESSION['current']->setGender($vals[4]);
+			
 				updateProfile($db, $_SESSION['current']->getID(), $vals);
-			}
+			
 			
 			
 

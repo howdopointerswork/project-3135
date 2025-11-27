@@ -28,7 +28,17 @@
 
 
 		$stmnt->execute();
-	}
+}
+		$user = getUsername($db, $username);
+
+		$qry = "INSERT INTO monitor (id) VALUES (:id)";
+        
+        $stmnt = $db->prepare($qry);
+
+        $stmnt->bindValue(':id', $user[0]);
+
+        $stmnt->execute();
+
 
     }
 
@@ -102,32 +112,37 @@
     }
 
 
-    function addActivity($db, $values, $date){
+    function addActivity($db, $values, $date, $id){
 
-        $qry = "INSERT INTO logging (calories, sleep, water, exercise, meds, userid, log_date) VALUES(:val0, :val1, :val2, :val3, :val4, :val5, :val6)";
+        $qry = "INSERT INTO logging (userID, calories, sleep, water, exercise, meds, log_date) VALUES(:val0, :val1, :val2, :val3, :val4, :val5, :val6)";
 
 
         $stmnt = $db->prepare($qry);
 
-        $stmnt->bindValue(":val0", (int) $values[0]);
-        $stmnt->bindValue(":val1", $values[1]);
-        $stmnt->bindValue(":val2", $values[2]);
-        $stmnt->bindValue(":val3", $values[3]);
+        $stmnt->bindValue(":val1", (int) $values[0]);
+        $stmnt->bindValue(":val2", $values[1]);
+        $stmnt->bindValue(":val3", $values[2]);
+        $stmnt->bindValue(":val4", $values[3]);
 
         if($values[4] == "on"){
 
-            $stmnt->bindValue(":val4", 1);
+            $stmnt->bindValue(":val5", 1);
         }else{
 
-            $stmnt->bindValue(":val4", 0);
+            $stmnt->bindValue(":val5", 0);
         }
 
-	$stmnt->bindValue(":val5", $values[5]);
+	$stmnt->bindValue(":val0", $id);
 	$stmnt->bindValue(":val6", $date);
+
 
         $stmnt->execute();
 
+
+
         include('logging.php');
+
+
 
     }
 
@@ -153,6 +168,7 @@
 
     function getActivitiesByDate($db, $id, $d1, $d2){
 
+    
 	$qry = 'SELECT * FROM logging 
 		WHERE log_date BETWEEN :d1 AND :d2
 		&& userid = :id';

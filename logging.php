@@ -12,6 +12,7 @@ if(session_status() === PHP_SESSION_NONE){
 }
 
 include('nav.php');
+
 //$_SESSION['current']->getName();
 //echo 'logged in as: ' . $_SESSION['current']->getName() . "<br> and" . $_SESSION['current']->getID() . " is ID<br>";
 ?>

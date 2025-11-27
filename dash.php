@@ -24,8 +24,8 @@ include ('nav.php');
     </head>
 <?php 
  
-$date = new DateTime($_SESSION['date']); 
-$newdate = $date->modify('-1 day'); 
+
+$newdate = new DateTime('today'); 
 ?>
     <body>
 	<h1 id="greeting">Hello, <?php echo $_SESSION['current']->getName();?></h1>

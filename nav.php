@@ -7,6 +7,11 @@ if(session_status() === PHP_SESSION_NONE){
 	session_start();
 }
 
+if(!$_SESSION['alerts']){
+
+	
+}
+
 
 	$names = ['', 'Profile', 'Booking', 'Logging', 'Monitoring', 'Stress Tracker', 'Sign Out', 'Dashboard', 'Search'];
 
@@ -47,7 +52,7 @@ if(session_status() === PHP_SESSION_NONE){
 		echo '<div class="alerts-empty"><i class="fas fa-check-circle"></i> No alerts</div>';
 	} else {
 		forEach($arr as $i => $alert){	
-			if(!is_array($alert)){
+			if(!is_array($alert) && $alert){
 				echo '<div class="alert-item" data-status="' . $alert->getStatus() . '">';
 				echo '<div class="alert-category"><i class="fas fa-info-circle"></i> ' . $_SESSION['alerts']->resolveCat($alert->getCategory()) . '</div>';
 				echo '<div class="alert-message">' . $alert->getMsg() . '</div>';

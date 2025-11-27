@@ -30,25 +30,26 @@
 	
 <?php
 
-
+	
 			$mod = date('Y-m-d', strtotime('-30 days'));
 			$cmp;
 	
 
 
-	
 
 			$results = getActivitiesByDate($db, $_SESSION['current']->getID(), $mod, $_SESSION['date']);
 
 			$monitor = getMonitor($db, $_SESSION['current']->getID());
-
+			
 			if($monitor){
 			
-
+			echo $monitor[4];
+		
 			if($monitor[4] != $_SESSION['date']){
 
 				$cmp = true;
 			}else{
+
 				$cmp = false;
 			}
 			
@@ -90,6 +91,7 @@
 		//	echo "<table>";
 
 			if($monitor){
+			
 				foreach($results as $result){
 					if($monitor[0] > 0){	
 						
@@ -97,7 +99,13 @@
 					}
 				}
 				//check for 0
-				$avg /= count($results);
+				if(count($results) > 0){
+					$avg /= count($results);
+
+				}else{
+
+					$avg /= 1;
+				}
 				$dev = $monitor[1]/10; //change to sd?
 				$cat = $monitor[0];
 					
@@ -147,6 +155,8 @@
 
 
 			}else{
+
+				
 
 			if((isset($avg) && isset($monitor)) && (number_format($avg,0) != number_format($monitor[3],0) || !isset($monitor[3]))){
 
@@ -204,7 +214,7 @@
 						echo "<p style='color: green'><br>Normal<br></p>"; 
 					}else if($avg < ($monitor[1]-($dev*2)) && $avg >= ($monitor[1] - ($dev*4))){
 						$code = 3;
-						$status = 2;
+						$sztatus = 2;
 						echo "$byID.color='orange';$close";
 						echo "<p style='color: orange'><br>Moderate</p>";
 					}else{

@@ -185,14 +185,17 @@
 
 
 		//	echo "Searching " . $this->getSize() . " items...";
+			if(count($this->alerts)>0){
+
 			foreach($this->alerts as $alert){
 
 
-				if($alert->getCategory() == $n){
+				if($alert && $alert->getCategory() == $n){
 
 					return true;
 				}
 			}
+		}
 
 			return false;
 		}
