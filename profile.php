@@ -50,6 +50,7 @@ include('nav.php');
 		echo '<input type="text" name="' . $index . '" id="' . $index . '" class="profile-input" style="display: none;" placeholder="Enter ' . $index . '">';
 		echo '</div>';
 	}
+			
 ?>
 				<div class="profile-actions">
 					<input type='submit' name='action' value='Save' id='Save' class='profile-btn profile-btn-save' style='display: none;'>

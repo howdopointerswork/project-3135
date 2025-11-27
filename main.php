@@ -174,6 +174,8 @@
 
 
 					$_SESSION['current'] = new User($result[0], $result[1], $result[3], $result[4], $result[5], $result[6], $result[7], $result[9]);
+
+					$_SESSION['current']->setImg(getUsername($db, $username)[7]);
 		
 					//$_SESSION['date'] = date(time()-28800);
 					
@@ -353,7 +355,15 @@
 				echo '<ul>';
 				
 				foreach ($users as $user) {
-				echo '<li>' . htmlspecialchars($user['name']) . '</li>';
+					
+					if(str_contains($user['username'], $query) && $query != ''){
+
+						echo '<li><span style="background-color: yellow">' . $user['username'] . '</span></li>';
+						}else{
+					
+
+						echo '<li>' . htmlspecialchars($user['username']) . '</li>';
+						}
 				}
 				echo '</ul>';
 				echo '</div>';
@@ -371,8 +381,20 @@
 
 				foreach ($acts as $activity) {
 
+					
+					$entry = '<strong>Calories</strong>: ' . $activity['calories'] . ' <strong>Sleep</strong>: ' . $activity['sleep'] . ' <strong>Water</strong>: ' . $activity['water'] . ' <strong>Exercise</strong>: ' . $activity['exercise'] . ' <strong>Meds</strong>: ' . $activity['meds'];
 
-					echo '<li>' . htmlspecialchars($activity['description']) . '</li>';
+				
+
+					if(str_contains($entry, $query) && $query != ''){
+				
+						echo '<li><span style="background-color: yellow">' . $entry . '</span></li>';
+						}else{
+					
+
+						echo '<li>' . $entry . '</li>';
+						}
+					
 				}
 
 			
@@ -387,8 +409,13 @@
 				echo '<i class="fas fa-calendar-alt"></i>';
 				echo '<ul>';
 				foreach ($books as $booking) {
+						if(str_contains($booking['description'], $query) && $query != ''){
 
+						echo '<li><span style="background-color: yellow">' . $booking['description'] . '</span></li>';
+						}else{
+					
 							echo '<li>' . htmlspecialchars($booking['description']) . '</li>';
+						}
 				}
 				echo '</ul>';
 				echo '</div>';
@@ -397,7 +424,14 @@
 			// Appointments section
 			if (!empty($apts)) {
 				foreach ($apts as $appointment) {
-					echo '<li>' . htmlspecialchars($appointment['description']) . '</li>';
+					if(str_contains($user['username'], $query) && $query != ''){
+
+						echo '<li><span style="background-color: yellow">' . $appointment['description'] . '</span></li>';
+						}else{
+					
+
+							echo '<li>' . htmlspecialchars($appointment['description']) . '</li>';
+						}
 				}
 				echo '</ul>';
 				echo '</div>';
@@ -624,7 +658,25 @@
 					}
 				}else{
 
-					$vals[$i] = 0; 
+					switch($i){
+
+						case 0:
+
+							$vals[$i] = $_SESSION['current']->getName();
+							break;
+						case 1:
+							$vals[$i] = $_SESSION['current']->getAge();
+							break;
+						case 2:
+							$vals[$i] = $_SESSION['current']->getHt();
+							break;
+						case 3:
+							$vals[$i] = $_SESSION['current']->getWt();
+							break;
+						case 4:
+							$vals[$i] = $_SESSION['current']->getGender();
+
+					}
 
 				}
 			}

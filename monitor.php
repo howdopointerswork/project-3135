@@ -43,8 +43,7 @@
 			
 			if($monitor){
 			
-			echo $monitor[4];
-		
+
 			if($monitor[4] != $_SESSION['date']){
 
 				$cmp = true;
