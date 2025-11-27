@@ -21,6 +21,30 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
     <link rel="stylesheet" href="css/dash.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        /* ADDED: Back button styling matching profile design */
+        .profile-back-btn {
+            padding: 0.75em 1.5em;
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            background: linear-gradient(90deg, #6c757d 0%, #5a6268 100%);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(108,117,125,0.3);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5em;
+        }
+        .profile-back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(108,117,125,0.4);
+        }
+        .profile-back-btn i {
+            font-size: 14px;
+        }
+
         .container { max-width: 1100px; margin: 2em auto; padding: 1em; }
         .form-box { background: #f8f8f8; padding: 2em; border: 2px solid #333; border-radius: 12px; margin: 2em auto; max-width: 640px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
         textarea { width: 100%; height: 180px; font-size: 16px; padding: 12px; border-radius: 8px; border: 1px solid #ccc; }
@@ -66,29 +90,154 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
         .stress-level-big { font-size: 3.2em; font-weight: bold; text-align: center; margin: 0.6em 0; }
 
         /* Support Resources */
-        .support-resources { background: #e3f2fd; border: 3px solid #1976D2; border-radius: 14px; padding: 1.8em; margin: 3em auto; max-width: 900px; text-align: center; box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
-        .support-resources h3 { margin: 0 0 1em; color: #0d47a1; font-size: 1.5em; }
-        .support-resources p { font-size: 1.15em; line-height: 1.7; margin: 1em 0; }
-        .support-resources .number { font-size: 2em; font-weight: bold; color: #d32f2f; margin: 0.5em 0; }
-        .highlight { background: #fff3e0; padding: 1.5em; border-radius: 10px; margin: 1.5em 0; border-left: 6px solid #ef6c00; }
+        /* UPDATED: Changed from centered text-only layout to split half-text/half-image design */
+        .support-resources { 
+            background: #ffffff; 
+            border: none; /* CHANGED: Removed dark blue border */
+            border-radius: 0; /* CHANGED: Removed border-radius for full-width design */
+            padding: 0; /* CHANGED: Removed padding to allow full-width image */
+            margin: 3em 0; /* CHANGED: Removed auto margin and max-width for full browser width */
+            max-width: 100%; /* CHANGED: Set to 100% for full width */
+            width: 100%; /* ADDED: Ensures full width */
+            box-shadow: none; /* CHANGED: Removed shadow */
+            overflow: hidden; /* ADDED: Ensures image doesn't overflow rounded corners */
+        }
+        /* ADDED: New wrapper for flexbox layout */
+        .support-content-wrapper {
+            display: flex;
+            align-items: stretch;
+            min-height: 500px;
+            background: #ffffff; /* ADDED: Ensure white background covers any gaps */
+        }
+        /* ADDED: Styles for text section (left half) */
+        .support-text {
+            flex: 1;
+            padding: 2.5em;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            min-width: 0; /* ADDED: Allows flex item to shrink below content size */
+        }
+        .support-text h3 { 
+            margin: 0 0 1em; 
+            color: #0d47a1; 
+            font-size: 1.8em;
+            display: flex; /* ADDED: For icon alignment */
+            align-items: center;
+            gap: 0.5em;
+            word-wrap: break-word; /* ADDED: Ensures text wraps */
+            overflow-wrap: break-word; /* ADDED: Modern text wrapping */
+        }
+        .support-text h3 i {
+            color: #1976D2;
+            font-size: 1em;
+            flex-shrink: 0; /* ADDED: Prevents icon from shrinking */
+        }
+        .support-text > p { 
+            font-size: 1.1em; 
+            line-height: 1.7; 
+            margin: 1em 0;
+            color: #333;
+            word-wrap: break-word; /* ADDED: Ensures text wraps */
+            overflow-wrap: break-word; /* ADDED: Modern text wrapping */
+        }
+        /* ADDED: Container for support contact items */
+        .support-list {
+            margin: 2em 0;
+        }
+        /* ADDED: Individual contact card styling */
+        .support-item {
+            display: flex;
+            align-items: center;
+            gap: 1em; /* CHANGED: Reduced from 1.5em to 1em for tighter spacing */
+            margin: 1.5em 0;
+            padding: 1em;
+            background: rgba(255,255,255,0.7);
+            border-radius: 10px;
+            border-left: 5px solid #1976D2;
+            flex-wrap: nowrap; /* CHANGED: Prevent wrapping on desktop/tablet */
+        }
+        .support-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            color: #d32f2f;
+            min-width: 80px; /* CHANGED: Reduced from 100px for tighter layout */
+            text-align: center;
+            flex-shrink: 0; /* ADDED: Prevents number from shrinking */
+        }
+        .support-details {
+            font-size: 1.05em;
+            line-height: 1.5;
+            word-wrap: break-word; /* ADDED: Ensures text wraps */
+            overflow-wrap: break-word; /* ADDED: Modern text wrapping */
+            min-width: 0; /* ADDED: Allows flex item to shrink */
+            flex: 1; /* ADDED: Takes remaining space */
+        }
+        .support-details strong {
+            color: #0d47a1;
+            font-size: 1.15em;
+            display: inline-block; /* CHANGED: Allow text to flow naturally */
+        }
+        /* ADDED: Styles for image section (right half) */
+        .support-image {
+            flex: 1;
+            min-height: 500px;
+            overflow: hidden;
+        }
+        .support-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        /* ADDED: Responsive stacking for mobile */
+        @media (max-width: 900px) {
+            .support-content-wrapper {
+                flex-direction: column;
+            }
+            .support-image {
+                min-height: 300px;
+            }
+            .support-text {
+                padding: 2em; /* ADDED: Reduce padding on smaller screens */
+            }
+            .support-text h3 {
+                font-size: 1.5em; /* ADDED: Smaller heading on mobile */
+            }
+            .support-text > p {
+                font-size: 1em; /* ADDED: Smaller text on mobile */
+            }
+        }
 
         @media (max-width: 768px) {
             .clean-table { font-size: 14px; }
             .clean-table thead th, .clean-table tbody td { padding: 12px 8px; }
             .big-number { font-size: 28px !important; }
+            .support-text {
+                padding: 1.5em; /* ADDED: Further reduce padding on mobile */
+            }
+            .support-item {
+                flex-direction: column; /* ADDED: Stack number and details vertically */
+                align-items: flex-start;
+                gap: 0.5em; /* CHANGED: Reduced gap for mobile */
+            }
+            .support-number {
+                font-size: 1.8em; /* ADDED: Smaller numbers on mobile */
+                min-width: auto; /* ADDED: Remove fixed width on mobile */
+            }
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1 style="text-align: center; margin-bottom: 0.5em;">Daily Stress Tracker</h1>
-
-    <!-- Back Button -->
-    <div style="text-align: center; margin: 1.5em;">
-        <form method="post" action="main.php">
-            <input type="submit" name="action" value="Back to Dashboard" class="btn">
+    <!-- UPDATED: Header container with back button matching profile design -->
+    <div style="max-width: 1100px; margin: 2em auto 1em; display: flex; align-items: center; gap: 1em;">
+        <form method="post" action="main.php" style="margin: 0;">
+            <button type="submit" name="action" value="Back to Dashboard" class="profile-back-btn">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
         </form>
+        <h1 style="text-align: left; font-size: 36px; color: #111; margin: 0; font-weight: 600;">Daily Stress Tracker</h1>
     </div>
 
     <!-- Log Form -->
@@ -152,14 +301,6 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
     <?php if (!empty($entries)): ?>
         <h2 style="text-align: center; margin: 2em 0;">Your Recent Stress Levels</h2>
 
-        <!-- ONE-CLICK "Compare Last 7 Days" -->
-        <div style="text-align: center; margin: 2em 0;">
-            <button type="button" onclick="compareLast7Days()" class="btn btn-success"
-                    style="font-size: 20px; padding: 16px 40px;">
-                Compare Last 7 Days
-            </button>
-        </div>
-
         <form method="post" action="main.php" id="compareForm">
             <!-- This hidden field fixes the login redirect bug -->
             <input type="hidden" name="action" value="Compare Selected Days">
@@ -201,8 +342,15 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
                 </tbody>
             </table>
 
-            <div style="text-align: center; margin: 2.5em 0;">
-                <input type="submit" name="action" value="Compare Selected Days" class="btn btn-primary">
+            <!-- UPDATED: Compare buttons side by side after table -->
+            <div style="text-align: center; margin: 2.5em 0; display: flex; justify-content: center; align-items: center; gap: 1em; flex-wrap: wrap;">
+                <button type="button" onclick="compareLast7Days()" class="btn btn-success"
+                        style="font-size: 20px; padding: 16px 40px;">
+                    Compare Last 7 Days
+                </button>
+                <span style="font-size: 18px; font-weight: 600; color: #333;">or</span>
+                <input type="submit" name="action" value="Compare Selected Days" class="btn btn-primary"
+                       style="font-size: 20px; padding: 16px 40px;">
             </div>
         </form>
     <?php else: ?>
@@ -244,20 +392,52 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
     <?php endif; ?>
 
     <!-- Support Resources -->
-    <div class="support-resources">
-        <h3>Need to talk to someone?</h3>
-        <p>You can always call these free, confidential services in British Columbia:</p>
-        <p class="number">8-1-1</p>
-        <p><strong>HealthLink BC</strong> – Free health advice 24/7</p>
-        <p class="number">9-8-8</p>
-        <p><strong>Suicide Crisis Helpline</strong> – Call or text 24/7</p>
-        <p class="number">9-1-1</p>
-        <p><strong>Emergency</strong> – For immediate danger</p>
-        <p style="margin-top: 1.5em; font-size: 1em; color: #555;">
-            Not medical advice.
-        </p>
+    <!-- UPDATED: Changed from simple centered text layout to split-screen design with image -->
+</div> <!-- Close container to allow full-width section -->
+
+<div class="support-resources">
+        <div class="support-content-wrapper">
+            <!-- ADDED: Text section on left side -->
+            <div class="support-text">
+                <h3><i class="fas fa-comment-medical"></i> Need to Talk to Someone?</h3>
+                <p>You don't have to face this alone. Our professional healthcare team and support services are here for you 24/7.</p>
+                <!-- ADDED: Structured list of support contacts -->
+                <div class="support-list">
+                    <div class="support-item">
+                        <div class="support-number">8-1-1</div>
+                        <div class="support-details">
+                            <strong>HealthLink BC</strong><br>
+                            Free health advice 24/7
+                        </div>
+                    </div>
+                    <div class="support-item">
+                        <div class="support-number">9-8-8</div>
+                        <div class="support-details">
+                            <strong>Suicide Crisis Helpline</strong><br>
+                            Call or text anytime, day or night
+                        </div>
+                    </div>
+                    <div class="support-item">
+                        <div class="support-number">9-1-1</div>
+                        <div class="support-details">
+                            <strong>Emergency Services</strong><br>
+                            For immediate danger
+                        </div>
+                    </div>
+                </div>
+                <p style="margin-top: 1.5em; font-size: 0.9em; color: #555; font-style: italic;">
+                    This is not medical advice. Always consult healthcare professionals for guidance.
+                </p>
+            </div>
+            <!-- ADDED: Image section on right side -->
+            <div class="support-image">
+                <img src="img/mental-health-support.jpg" alt="Mental Health Support" onerror="this.src='https://images.unsplash.com/photo-1573497491208-6b1acb260507?w=600&h=500&fit=crop'">
+            </div>
+        </div>
     </div>
-</div>
+</div> <!-- End support resources -->
+
+<div class="container"> <!-- Reopen container for scripts -->
 
 <script>
     // Open/Close form

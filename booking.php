@@ -45,43 +45,59 @@ include('nav.php');
 //get user, get bookings, confirm button
 if($_SESSION['current']->getPrivilege() > 0){
 	
-	echo 'admin';
-	echo '<form method="post" action="main.php">';
-	echo "<select name='user'>";
+	echo '<div style="background: #fff; padding: 2em; margin: 2em auto; max-width: 900px; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,0.12);">';
+	echo '<h2 style="color: #1976D2; margin-bottom: 1.5em; display: flex; align-items: center; gap: 0.5em;"><i class="fas fa-calendar-check"></i> Admin: Confirm Appointment</h2>';
+	echo '<form method="post" action="main.php" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2em; align-items: end;">';
+	
+	// User selection
+	echo '<div style="display: flex; flex-direction: column;">';
+	echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-user"></i> Select User</label>';
+	echo "<select name='user' style='padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;' onmouseover='this.style.borderColor=\"#1976D2\"' onmouseout='this.style.borderColor=\"#ddd\"'>";
 	foreach(getUsers($db) as $user){
-
-		echo "<option value=" . $user[0] . ">" . $user[1] . "</option>";
-		
+		echo "<option value=" . $user[0] . ">" . htmlspecialchars($user[1]) . "</option>";
 	}
 	echo '</select>';
-	//	foreach(getBookings($db,
+	echo '</div>';
 	
-	echo "<select name='booking'>";
-
+	// Booking selection
+	echo '<div style="display: flex; flex-direction: column;">';
+	echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-clipboard-list"></i> Select Booking</label>';
+	echo "<select name='booking' style='padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;' onmouseover='this.style.borderColor=\"#1976D2\"' onmouseout='this.style.borderColor=\"#ddd\"'>";
 	foreach(getAllBookings($db) as $booking){
-
-		echo "<option value=" . $booking[0] . "|" . $booking[1]  . ">ID: " . $booking[0] . " User ID: " . $booking[1] . " Date: " . $booking[2] .  " Desc: " . $booking[3] . "</option>";
-	//	echo "<input type='hidden' name='match' value=" . $booking[1] . ">";
-
+		echo "<option value='" . $booking[0] . "|" . $booking[1] . "'>ID:" . $booking[0] . " - " . htmlspecialchars($booking[3]) . " (" . $booking[2] . ")</option>";
 	}
 	echo "</select>";
-
-	echo "<select name='prof'>";
-	foreach(getProfs($db) as $prof){
-
-		echo "<option value=" . $prof[0] . ">" . $prof[1] . "</option>";		
-	}
-	echo "</select>";
-
-
-	echo '<input type="date" name="app_date">';
-	echo '<input type="time" name="app_time">';	
-
+	echo '</div>';
 	
-	echo '<input type="submit" name="action" value="Confirm Appointment">';
-
-
+	// Professional selection
+	echo '<div style="display: flex; flex-direction: column;">';
+	echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-user-md"></i> Select Professional</label>';
+	echo "<select name='prof' style='padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;' onmouseover='this.style.borderColor=\"#1976D2\"' onmouseout='this.style.borderColor=\"#ddd\"'>";
+	foreach(getProfs($db) as $prof){
+		echo "<option value=" . $prof[0] . ">" . htmlspecialchars($prof[1]) . "</option>";
+	}
+	echo "</select>";
+	echo '</div>';
+	
+	// Date input
+	echo '<div style="display: flex; flex-direction: column;">';
+	echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-calendar"></i> Appointment Date</label>';
+	echo '<input type="date" name="app_date" required style="padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;" onmouseover="this.style.borderColor=\'#1976D2\'" onmouseout="this.style.borderColor=\'#ddd\'">';
+	echo '</div>';
+	
+	// Time input
+	echo '<div style="display: flex; flex-direction: column;">';
+	echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-clock"></i> Appointment Time</label>';
+	echo '<input type="time" name="app_time" required style="padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;" onmouseover="this.style.borderColor=\'#1976D2\'" onmouseout="this.style.borderColor=\'#ddd\'">';
+	echo '</div>';
+	
+	// Submit button
+	echo '<div style="display: flex; align-items: end;">';
+	echo '<input type="submit" name="action" value="Confirm Appointment" style="padding: 0.75em 1.5em; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(33,150,243,0.3); transition: all 0.2s; width: 100%;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 6px 16px rgba(33,150,243,0.4)\'" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 4px 12px rgba(33,150,243,0.3)\'">';
+	echo '</div>';
+	
 	echo '</form>';
+	echo '</div>';
 }
 
 
