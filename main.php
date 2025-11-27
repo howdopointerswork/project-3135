@@ -148,15 +148,9 @@
 			
 			//action can be used to check for signups, logins, etc.
 
-			$query = 'SELECT * FROM user WHERE username = :username';
+			$name = getUsername($db, $username);
 
-			$statement = $db->prepare($query);
-
-			$statement->bindValue(':username', $username);
-
-			$statement->execute();
-
-			$name = $statement->fetch();
+		
 	
 			if(empty($name)){
 			
@@ -167,11 +161,13 @@
 
 			} else{
 				
-				$result = authenticate($db, $username, $password);
+				$result = authenticate($db, $username, getUsername($db, $username)[2]);
 
-
+				
 				if(is_array($result) && end($result)){
-
+			
+					if(password_verify($password, getUsername($db, $username)[2])){
+				
 					if(session_status() === PHP_SESSION_NONE){
 						session_start();
 					}
@@ -202,6 +198,7 @@
 
 						if($_SESSION['activities'][count($_SESSION['activities'])-1] != $_SESSION['date']){
 
+							if(!empty($_SESSION['activities'])){
 						//	echo 'logging alert<br>';
 							$time1 = new DateTime($_SESSION['date']);
 							$time2 = new DateTime($_SESSION['activities'][count($_SESSION['activities'])-1][7]);		
@@ -213,6 +210,7 @@
 							
 
 							$_SESSION['alerts']->addAlert($alert);
+							}
 
 							$bookings = getBookings($db, $_SESSION['current']->getID());	
 							$recent = new DateTime($bookings[count($bookings)-1]['booking_date']);
@@ -228,6 +226,7 @@
 
 						}
 					}
+
 					
 					
 					$_SESSION['page'] = 'dash.php';
@@ -236,11 +235,12 @@
 					exit;
 
 				}
+				
 				else{
 				
 					include('login.php');
 					exit;
-
+				}
 				}
 			}
 		
@@ -253,16 +253,33 @@
 
 			$field1 = filter_input(INPUT_POST, 'Username');
 			$field2 = filter_input(INPUT_POST, 'Password');
-			$field3 = filter_input(INPUT_POST, 'Age');
+			$field3 = filter_input(INPUT_POST, 'Age'); 
 			$field4 = filter_input(INPUT_POST, 'Height');
 			$field5 = filter_input(INPUT_POST, 'Weight');
 			$field6 = filter_input(INPUT_POST, 'Gender');
 
-			addUser($db, $field1, $field2, $field3, $field4, $field5, $field6, '', $_SESSION['date'], 0);
+			if(filter_var($field3, FILTER_VALIDATE_INT) !== false && filter_var($field4, FILTER_VALIDATE_INT) !== false && filter_var($field5,FILTER_VALIDATE_INT) !== false){
+
+				//encrypt here
+				$hash = password_hash($field2, PASSWORD_DEFAULT);
+				
+				addUser($db, $field1, $hash, $field3, $field4, $field5, $field6, 'profile.jpg', $_SESSION['date'], 0);
+
+				$_SESSION['current'] = new User(name: $field1, age: $field3, ht: $field4, wt: $field5, gender: $field6, privilege: 0);
+				include ('dash.php');
+				exit;
+			}else{
+
+				echo '<span style="color: red">Error Signing Up - Age, Height, and Weight must be numbers</span';
+				include('signup.php');
+				exit;
+			}
 
 			
 				
 			$result = authenticate($db, $field1, $field2);
+
+
 
 				if(is_array($result) && end($result)){
 
@@ -274,7 +291,7 @@
 					$_SESSION['current'] = new User($result[0], $result[1], $result[3], $result[4], $result[5], $result[6], $result[7], $result[8]);
 					include('dash.php');
 					exit;
-				}
+			}
 				
 
 		
@@ -546,13 +563,39 @@
 			$values[] = filter_input(INPUT_POST, 'exercise');
 			$values[] = filter_input(INPUT_POST, 'meds');
 
-			$values[] = filter_input(INPUT_POST, 'userid', FILTER_VALIDATE_INT); 
+			$values[] = filter_input(INPUT_POST, 'userid'); 
 			/*foreach($values as $index => $val){
 
 				echo "$index: $val <br>";
 			}*/
 
-			addActivity($db, $values, $_SESSION['date']);
+	
+
+			$values[4] = ($values[4] == 'on' ? 1 : 0);
+
+			foreach($values as $index => $field){
+
+				if(filter_var($field, FILTER_VALIDATE_INT) !== false){
+			
+					if($index === count($values)-1){
+
+						addActivity($db, $values, $_SESSION['date']);
+						break;						
+
+					}
+					
+				}else{
+					$alert = new Alert(2, 0, 'Use numbers only when logging activities.', 444);
+        $_SESSION['alerts']->addAlert($alert);
+					include('logging.php');
+					exit;
+					
+				}
+
+			}
+
+
+			
 			
 			break;
 
@@ -577,15 +620,32 @@
 
 
 	        case 'Update Activity':
+
 			
 			$data = filter_input(INPUT_POST, 'data', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
-			$actID = filter_input(INPUT_POST, 'actID');
 			$logID = filter_input(INPUT_POST, 'logID');
 
-			updateActivity($db, $data, $actID, $logID);
+			foreach($data as $index => $field){
 
-			include('logging.php');
-			exit;
+				if(isset($field) && filter_var($field, FILTER_VALIDATE_INT) !== false){
+
+					if($index === count($data)-1){
+
+						updateActivity($db, $data, $logID, $_SESSION['current']->getID());
+						include('logging.php');
+						exit;
+					}
+				}else{
+
+					$alert = new Alert(2, 0, 'Please use only numbers when editing activities.', 443);
+					$_SESSION['alerts']->addAlert($alert);
+					include('logging.php');
+					exit;
+
+				}
+			}
+
+		
 
 
 		case 'Profile':
@@ -603,9 +663,11 @@
 			$vals[] = filter_input(INPUT_POST, 'Weight');
 			$vals[] = filter_input(INPUT_POST, 'Gender');
 
+			$set = true;
+
 			foreach($vals as $i => $val){
 
-				if(empty($val)){
+				if(!empty($val)){
 
 					switch($i){
 				
@@ -613,14 +675,47 @@
 							$vals[$i] = $_SESSION['current']->getName();
 							break;
 						case 1:
-							$vals[$i] = $_SESSION['current']->getAge();
+
+						if(filter_var($vals[$i], FILTER_VALIDATE_INT) !== false){
+									
+									$vals[$i] = $_SESSION['current']->getAge();
+								}else{
+
+									$alert = new Alert(4, 0, 'Age field only accepts numbers.', 403);
+									$_SESSION['alerts']->addAlert($alert);
+									$set = false;
+									include('profile.php');
+									exit;
+								}						
 							break;
 						case 2:
-							$vals[$i] = $_SESSION['current']->getHt();
+							
+							if(filter_var($vals[$i], FILTER_VALIDATE_INT) !== false){
+									
+									$vals[$i] = $_SESSION['current']->getHt();
+								}else{
+
+									$alert = new Alert(4, 0, 'Height field only accepts numbers.', 401);
+									$_SESSION['alerts']->addAlert($alert);
+									$set = false;
+									include('profile.php');
+									exit;
+								}
 							break;
 						case 3:
+						
+						if(filter_var($vals[$i], FILTER_VALIDATE_INT) !== false){
+									
+									$vals[$i] = $_SESSION['current']->getWt();
+								}else{
 
-							$vals[$i] = $_SESSION['current']->getWt();
+									$alert = new Alert(4, 0, 'Weight field only accepts numbers.', 402);
+									$_SESSION['alerts']->addAlert($alert);
+									$set = false;
+									include('profile.php');
+									exit;
+								}
+							
 							break;
 						case 4:
 
@@ -632,14 +727,16 @@
 			}
 			
 			
-
-			$_SESSION['current']->setName($vals[0]);
-			$_SESSION['current']->setAge($vals[1]);
-			$_SESSION['current']->setHt((float) $vals[2]);
-			$_SESSION['current']->setWt((float) $vals[3]);
-			$_SESSION['current']->setGender($vals[4]);
+			if($set){
+				$_SESSION['current']->setName($vals[0]);
+				$_SESSION['current']->setAge($vals[1]);
+				$_SESSION['current']->setHt((float) $vals[2]);
+				$_SESSION['current']->setWt((float) $vals[3]);
+				$_SESSION['current']->setGender($vals[4]);
+				updateProfile($db, $_SESSION['current']->getID(), $vals);
+			}
 			
-			updateProfile($db, $_SESSION['current']->getID(), $vals);
+			
 
 			include('profile.php');
 			exit;
@@ -649,7 +746,9 @@
 		case 'Monitor': //yes this is confusing with the above case, will change eventually. Above is for Monitoring page, this is to monitor activity
 
 			$toMonitor = filter_input(INPUT_POST, 'toMonitor');
-			$threshold = filter_input(INPUT_POST, 'threshold') ?? 0;
+			$threshold = filter_input(INPUT_POST, 'threshold');
+
+			if(filter_var($threshold, FILTER_VALIDATE_INT) !== false){
 
 			$selected;
 
@@ -693,6 +792,13 @@
 			echo "Monitoring set successfully";       
 			include('monitor.php');
 			exit;
+		}else{
+
+			$alert = new Alert(1, 0, 'Threshold only accepts numbers.', 425);
+			$_SESSION['alerts']->addAlert($alert);
+			include('monitor.php');
+			exit;
+		}
 
 		case 'Add Booking':
         $date   = filter_input(INPUT_POST, 'booking_date');
@@ -741,7 +847,8 @@
 		addAppointment($db, $uid, $pid, $booking[0], $date, $time, $_SESSION['date']); 
 
 	}else{
-		echo '<span style="color: red">Error: User ID mismatch</span>';
+		$alert = new Alert(3, 0, 'User ID Mismatch', 444);
+		$_SESSION['alerts']->addAlert($alert);
 	}	
 		
 	    //include('booking.php');	    
@@ -772,7 +879,7 @@ case 'Save Stress Log':
     $notes = trim(filter_input(INPUT_POST, 'notes'));
 
     if ($level === false || $level < 1 || $level > 10) {
-        $alert = new Alert(2, 3, 'Stress level must be between 1 and 10.', 999);
+        $alert = new Alert(6, 2, 'Stress level must be between 1 and 10.', 999);
         $_SESSION['alerts']->addAlert($alert);
     } else {
         addStressLevel($db, $userId, date('Y-m-d'), $level, $notes);
@@ -783,7 +890,7 @@ case 'Save Stress Log':
 case 'Compare Selected Days':
     $selected = filter_input(INPUT_POST, 'selected', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) ?? [];
     if (count($selected) < 2) {
-        $alert = new Alert(2, 3, 'Please select at least two days to compare.', 998);
+        $alert = new Alert(6, 2, 'Please select at least two days to compare.', 998);
         $_SESSION['alerts']->addAlert($alert);
     } else {
         $_SESSION['compare_stress'] = $selected;

@@ -45,6 +45,19 @@
 	
     } 
 
+    function getUsername($db, $username){
+
+    	$query = 'SELECT * FROM user WHERE username = :username';
+
+		$statement = $db->prepare($query);
+
+		$statement->bindValue(':username', $username);
+
+		$statement->execute();
+
+		return $statement->fetch();
+    }
+
 
     function getUsers($db){
 	
@@ -93,7 +106,6 @@
 
         $qry = "INSERT INTO logging (calories, sleep, water, exercise, meds, userid, log_date) VALUES(:val0, :val1, :val2, :val3, :val4, :val5, :val6)";
 
-        echo $values[4];
 
         $stmnt = $db->prepare($qry);
 
@@ -175,7 +187,7 @@
 
     function getActivity($db, $id, $logID){
 
-	$qry = 'SELECT * FROM logging WHERE id = :id AND logID = :logID';
+	$qry = 'SELECT * FROM logging WHERE userID = :id AND logID = :logID';
 
 	$stmnt = $db->prepare($qry);
 
@@ -211,7 +223,7 @@
     }
 
     
-    function updateActivity($db, $data, $id){
+    function updateActivity($db, $data, $logID, $id){
 
 	    $qry = 'UPDATE logging SET 
 		    calories = :calories,
@@ -219,7 +231,7 @@
 		    water = :water,
 		    exercise = :exercise,
 		    meds = :meds
-		    WHERE id = :id';
+		    WHERE userID = :id AND logID = :logID';
 
 	    $stmnt = $db->prepare($qry);
 
@@ -229,6 +241,7 @@
 	    $stmnt->bindValue(':exercise', $data[3]);
 	    $stmnt->bindValue(':meds', $data[4]);
 
+	    $stmnt->bindValue(':logID', $logID);
 	    $stmnt->bindValue(':id', $id);
 
 	    $stmnt->execute();
@@ -348,7 +361,7 @@
 
 
 
-    	function updateScore($db, $id, $newScore){
+    function updateScore($db, $id, $newScore){
 
 		$qry = "UPDATE monitor SET score = :newScore WHERE id = :id";
 

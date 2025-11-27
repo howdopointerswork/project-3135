@@ -57,21 +57,7 @@ include('nav.php');
                 echo '</ul>';
             ?>
             
-           <!-- <label for="calories">Calorie Intake</label>
-            <input type="text" name="calories">
-            
-            <label for="sleep">Hours of Sleep</label>
-            <input type="text" name="sleep">
-
-            <label for="water">Water Intake (mL)</label>
-            <input type="text" name="water">
-
-            <label for="exercise">Hours of Exercise</label>
-            <input type="text" name="exercise">
-
-            <label for="meds">Medication Taken?</label>
-            <input type="checkbox" name="meds">
--->
+          
             <input type="submit" name="action" value="Add Activity"> 
 
 

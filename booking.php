@@ -161,7 +161,7 @@ if($_SESSION['current']->getPrivilege() > 0){
 			
 		    if(!checkAppointments($db, $_SESSION['current']->getID(), $booking['id'])){
                     // Edit Form
-                    echo "<form method='post' action='main.php' style='display:inline;'>";
+                    echo "<form method='post' action='main.php' style='display: inline'>";
                     echo "<input type='hidden' name='bookingID' value='{$booking['id']}'>";
                     echo "<input type='submit' name='action' value='Edit' class='manage-btn' style='background:#4CAF50;color:white;'>";
                     echo "</form> ";

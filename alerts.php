@@ -239,6 +239,12 @@
 				
 			case 4:
 				return 'Profile';
+
+			case 5:
+				return 'Error';
+
+			case 6:
+				return 'Stress Tracker';
 				
 			default:
 				return '';

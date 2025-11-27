@@ -12,3 +12,12 @@ include('nav.php');
     <input type="submit" name="action" value="Update Booking">
     <input type="submit" name="action" value="Back">
 </form>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Booking</title>
+    <link rel="stylesheet" href="css/dash.css">
+</head>
+
+</html>

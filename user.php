@@ -26,7 +26,7 @@
 
 
         
-        public function __construct(int $id=0, string $name="Guest", int $age=0, float $ht=0, float $wt=0, string $gender='', string $img='', int $privilege = 0){
+        public function __construct(int $id=0, string $name="Guest", int $age=0, float $ht=0, float $wt=0, string $gender='', string $img='profile.jpg', int $privilege = 0){
             
 		$this->id = $id;
 		$this->name = $name;
