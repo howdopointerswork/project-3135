@@ -182,7 +182,8 @@
 
 				
 
-			if((isset($avg) && isset($monitor)) && (number_format($avg,0) != number_format($monitor[3],0) || !isset($monitor[3]))){
+			// FIXED: Added null check before using number_format to prevent deprecated warning
+			if((isset($avg) && isset($monitor)) && (number_format($avg ?? 0, 0) != number_format($monitor[3] ?? 0, 0) || !isset($monitor[3]))){
 
 				
 				//check if second cond is true, if so, send alert
@@ -278,7 +279,7 @@
 				
 			}
 			}else{
-				echo "You have nothing to monitor - please log activities or book an appointment";
+				echo '<div style="background: #fff9e6; border-left: 4px solid #ffa500; padding: 20px; margin: 20px auto; border-radius: 8px; max-width: 600px; text-align: left;"><h3 style="color: #ff8c00; margin-top: 0;"><i class="fas fa-info-circle"></i> No Data to Monitor Yet</h3><p style="color: #333;">To start monitoring your health, you need to:</p><ul style="color: #555;"><li>Log some activities in your dashboard, or</li><li>Book an appointment with a healthcare provider</li></ul><p style="color: #666; font-size: 0.9em;">Once you have some data, you\'ll be able to track your progress here!</p></div>';
 			}
 				
 			$sumCals = getSum($db, $_SESSION['current']->getID(), 'calories');

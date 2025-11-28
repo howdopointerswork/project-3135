@@ -126,7 +126,7 @@
 	}catch(PDOException $e){
 		
 		// FIXED: Added error handling - display error and exit if database connection fails
-		die("Database connection failed: " . $e->getMessage());
+		die("<div style='background: #ffe6e6; border-left: 4px solid #ff4444; padding: 20px; margin: 20px; border-radius: 8px; font-family: Arial, sans-serif;'><h2 style='color: #ff4444; margin-top: 0;'><i class='fas fa-exclamation-circle'></i> Connection Error</h2><p style='color: #333;'>We're having trouble connecting to the database. Please try again in a few moments.</p><p style='font-size: 0.9em; color: #666;'>If the problem persists, please contact support.</p></div>");
 
 	}
 //change to switch	
@@ -150,7 +150,7 @@
 		
 	
 			if(empty($name)){
-			
+				$_SESSION['error_msg'] = "Username not found. Please sign up to create a new account.";
 				include('signup.php');
 				exit;
 			
@@ -234,7 +234,7 @@
 				}
 				
 				else{
-				
+					$_SESSION['error_msg'] = "Incorrect password. Please try again.";
 					include('login.php');
 					exit;
 				}
@@ -277,7 +277,7 @@
 			}else{
 
 				// FIXED: Completed the closing tag for error message
-				echo '<span style="color: red">Error Signing Up - Age, Height, and Weight must be numbers</span>';
+				$_SESSION['error_msg'] = "Please enter valid numbers for Age, Height, and Weight.";
 				include('signup.php');
 				exit;
 			}
