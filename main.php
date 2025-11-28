@@ -175,7 +175,8 @@
 
 					$_SESSION['current'] = new User($result[0], $result[1], $result[3], $result[4], $result[5], $result[6], $result[7], $result[9]);
 
-					$_SESSION['current']->setImg(getUsername($db, $username)[7]);
+				
+					$_SESSION['current']->setImg('img/' . getUsername($db, $username)[7]);
 		
 					//$_SESSION['date'] = date(time()-28800);
 					
@@ -197,7 +198,7 @@
 
 							if(end($apt) > $_SESSION['date']){
 
-								echo 'upcoming!';
+								//echo 'upcoming!';
 								$apt_alert = new Alert();
 							}
 						}
@@ -278,13 +279,23 @@
 
 				//encrypt here
 				$hash = password_hash($field2, PASSWORD_DEFAULT);
+				$checkUser = getUsername($db, $username);
 				
+				
+
+				if(!$checkUser){
 				addUser($db, $field1, $hash, $field3, $field4, $field5, $field6, 'profile.jpg', $_SESSION['date'], 0);
 
 				$_SESSION['current'] = new User(name: $field1, age: $field3, ht: $field4, wt: $field5, gender: $field6, privilege: 0);
 				$_SESSION['current']->setID(getUsername($db, $field1)[0]);
 				include ('dash.php');
 				exit;
+				}else{
+
+					echo 'User already exists. Please pick a different name.';
+					include('signup.php');
+					exit;
+				}
 			}else{
 
 				echo '<span style="color: red">Error Signing Up - Age, Height, and Weight must be numbers</span';
@@ -306,6 +317,7 @@
 
 
 					$_SESSION['current'] = new User($result[0], $result[1], $result[3], $result[4], $result[5], $result[6], $result[7], $result[8]);
+					$_SESSION['current']->setImg($result[7]);
 					include('dash.php');
 					exit;
 			}
@@ -364,6 +376,7 @@
 
 						echo '<li>' . htmlspecialchars($user['username']) . '</li>';
 						}
+
 				}
 				echo '</ul>';
 				echo '</div>';
@@ -588,8 +601,11 @@
 			$vals[] = filter_input(INPUT_POST, 'Weight');
 			$vals[] = filter_input(INPUT_POST, 'Gender');
 
-		
-			
+			$selected = filter_input(INPUT_POST, 'selected');
+
+			//put into vals
+			$_SESSION['current']->setImg($selected . '.png');
+			$vals[] = $selected . '.png';
 		
 
 			foreach($vals as $i => $val){

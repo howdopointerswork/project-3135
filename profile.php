@@ -34,8 +34,24 @@ include('nav.php');
 
 	<div class="profile-card">
 		<div class="profile-photo-section">
-			<img src="<?php echo 'img/' . $_SESSION['current']->getImg(); ?>" alt="profile picture" class="profile-photo">
+			<img src="<?php echo 'img/' . getUsername($db, $_SESSION['current']->getName())[7]; ?>" alt="profile picture" class="profile-photo">
 			<button type='button' id='editCancel' class="profile-edit-btn"><i class="fas fa-edit"></i> Edit Profile</button>
+			<button id='change' style='display: none';>Change Picture</button>
+
+
+			<?php
+				$icons = [];
+				echo '<ul id="icons" style="list-style-type: none; display: none">';
+				for($i=0; $i<20; $i++){
+
+
+					echo '<li>' . '<input type="radio" id="icon' . $i . '" name="prof" value="icon' . $i . '"><img height="50px" width="50px" src="img/icon' . $i . '.png""></li>';
+
+				}
+				echo '</ul>';
+				
+			?>
+
 		</div>
 
 		<div class="profile-info-section">
@@ -50,7 +66,16 @@ include('nav.php');
 		echo '<input type="text" name="' . $index . '" id="' . $index . '" class="profile-input" style="display: none;" placeholder="Enter ' . $index . '">';
 		echo '</div>';
 	}
-			
+	/*
+				$somearray = ['one', 'two', 'three'];
+				echo '<h3>Change Picture</h3>';
+				foreach($somearray as $index => $arr){
+
+
+
+					echo '<input type="radio" name="picture" value="prof' . $index . '">';
+				}*/
+				echo '<input type="hidden" id="selected" name="selected" value="prof.jpg">';
 ?>
 				<div class="profile-actions">
 					<input type='submit' name='action' value='Save' id='Save' class='profile-btn profile-btn-save' style='display: none;'>
@@ -61,9 +86,14 @@ include('nav.php');
 
 	
 	<script>
+
+
+
 	document.getElementById('editCancel').addEventListener('click', function() {
 		if(showForm){
 			showForm = false;
+			document.getElementById('change').style.display = '';
+			document.getElementById('change').style.backgroundColor = 'white';
 			this.innerHTML = '<i class="fas fa-times"></i> Cancel';
 			this.classList.add('cancel-mode');
 			arr.forEach(function(item){
@@ -75,6 +105,8 @@ include('nav.php');
 			document.getElementById('Save').style.display = 'inline-block';
 		}else{
 			showForm = true;
+			document.getElementById('change').style.display = 'none';
+			document.getElementById('icons').style.display = 'none';
 			this.innerHTML = '<i class="fas fa-edit"></i> Edit Profile';
 			this.classList.remove('cancel-mode');
 			arr.forEach(function(item){
@@ -87,6 +119,27 @@ include('nav.php');
 		}
 
 	});
+
+		document.getElementById('Save').addEventListener('click', function(){
+
+			let checked = document.querySelector('input[name="prof"]:checked');
+
+			if(checked){
+					console.log('working');
+
+					document.getElementById('selected').value = checked.value;
+			}
+		});
+
+		document.getElementById('change').addEventListener('click', function(){
+
+				if(document.getElementById('icons').style.display == 'none'){
+
+					document.getElementById('icons').style.display = '';
+					document.getElementById('change').style.display = 'none';
+				
+				}
+		});
 	</script>
 </body>
 
