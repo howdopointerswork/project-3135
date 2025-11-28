@@ -474,40 +474,19 @@
 	
 	function checkAppointments($db, $uid, $bid) : bool{
 
-		$qry = 'SELECT * FROM appointments WHERE user_id = :uid AND booking_id = :bid';
+		$qry = 'SELECT COUNT(*) as count FROM appointments WHERE user_id = :uid AND booking_id = :bid';
 
 		$stmnt = $db->prepare($qry);
 
-		$stmnt->bindValue(':uid', $uid);
-		$stmnt->bindValue(':bid', $bid);
+		$stmnt->bindValue(':uid', $uid, PDO::PARAM_INT);
+		$stmnt->bindValue(':bid', $bid, PDO::PARAM_INT);
 
 		$stmnt->execute();
 
-		$apt = $stmnt->fetchAll();
+		$result = $stmnt->fetch();
 
-		
-		$qry = 'SELECT * FROM booking WHERE userid = :uid AND id = :bid';
-
-		$stmnt = $db->prepare($qry);
-
-		$stmnt->bindValue(':uid', $uid);
-		$stmnt->bindValue(':bid', $bid);
-
-		$stmnt->execute();
-
-		$bkg = $stmnt->fetchAll();
-		
-	//	echo var_dump($apt);
-
-		//	return $apt['booking_id'] === $bkg['id'] ? true : false;
-		if(!empty($apt) && !empty($bkg)){
-			if($apt[0][3] === $bkg[0][0]){
-				return true;
-			}
-		}	
-		return false;
-
-
+		// Return true if there's at least one appointment record for this user and booking
+		return $result['count'] > 0;
 	}	
 
 

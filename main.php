@@ -788,8 +788,15 @@
 
 	if($uid === $booking[1]){
 
-		//check prof availability?
-		addAppointment($db, $uid, $pid, $booking[0], $date, $time, $_SESSION['date']); 
+		// Check if appointment already exists to prevent duplicates
+		if(!checkAppointments($db, $uid, $booking[0])){
+			addAppointment($db, $uid, $pid, $booking[0], $date, $time, $_SESSION['date']); 
+			$alert = new Alert(1, 0, 'Appointment Confirmed Successfully', 200);
+			$_SESSION['alerts']->addAlert($alert);
+		} else {
+			$alert = new Alert(2, 0, 'Appointment Already Exists', 409);
+			$_SESSION['alerts']->addAlert($alert);
+		}
 
 	}else{
 		$alert = new Alert(3, 0, 'User ID Mismatch', 444);
