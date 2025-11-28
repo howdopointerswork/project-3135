@@ -587,5 +587,20 @@ function getStressLevel($db, $id) {
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+function getAppointmentDetailsByBooking($db, $bookingId){
+
+	$qry = "SELECT a.*, p.name as professional_name, b.description 
+	         FROM appointments a 
+	         JOIN professionals p ON a.professional_id = p.id 
+	         JOIN booking b ON a.booking_id = b.id 
+	         WHERE a.booking_id = :booking_id";
+
+	$stmnt = $db->prepare($qry);
+	$stmnt->bindValue(':booking_id', $bookingId);
+	$stmnt->execute();
+
+	return $stmnt->fetch(PDO::FETCH_ASSOC);
+}
+
 ?>
 

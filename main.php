@@ -132,6 +132,24 @@
 //change to switch	
 	switch($action){
 		
+		case 'get_appointment_details':
+			if (isset($_POST['booking_id'])) {
+				$bookingId = $_POST['booking_id'];
+				$appointment = getAppointmentDetailsByBooking($db, $bookingId);
+				
+				if ($appointment) {
+					echo '<div style="font-family: Arial, sans-serif;">';
+					echo '<p><strong><i class="fas fa-calendar"></i> Date:</strong> ' . date('F j, Y', strtotime($appointment['appointment_date'])) . '</p>';
+					echo '<p><strong><i class="fas fa-clock"></i> Time:</strong> ' . date('g:i A', strtotime($appointment['appointment_time'])) . '</p>';
+					echo '<p><strong><i class="fas fa-user-md"></i> Doctor:</strong> ' . htmlspecialchars($appointment['professional_name']) . '</p>';
+					echo '<p><strong><i class="fas fa-info-circle"></i> Booking Description:</strong> ' . htmlspecialchars($appointment['description']) . '</p>';
+					echo '</div>';
+				} else {
+					echo '<p>Appointment details not found.</p>';
+				}
+			}
+			exit;
+		
 		case 'login':
 			$_SESSION['page'] = 'login.php';
 			include('login.php');

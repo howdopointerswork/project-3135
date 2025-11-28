@@ -29,6 +29,14 @@ include('nav.php');
         .day-num { font-weight: bold; font-size: 16px; }
         .booking-text { font-size: 13px; margin-top: 4px; }
         .empty-day { background: #f9f9f9; }
+        
+        /* Popup Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border-radius: 10px; width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        .close { color: #aaa; float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #000; }
+        .details-btn { background: #2196F3; color: white; border: none; padding: 0.3em 0.6em; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 4px; }
+        .details-btn:hover { background: #1976D2; }
     </style>
 </head>
 <body>
@@ -257,6 +265,7 @@ if($_SESSION['current']->getPrivilege() > 0){
 		    }else{
 
 			echo '<p style="color: white; font-weight: bold;">Appointment Confirmed</p>';
+			echo '<button class="details-btn" onclick="showAppointmentDetails(' . $booking['id'] . ')">See Details</button>';
 		    }
 
 
@@ -292,6 +301,15 @@ if($_SESSION['current']->getPrivilege() > 0){
         </button>
     </div>
 
+    <!-- Appointment Details Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 style="color: #1976D2; margin-bottom: 1em;"><i class="fas fa-calendar-check"></i> Appointment Details</h2>
+            <div id="appointmentDetails"></div>
+        </div>
+    </div>
+
     <script>
         document.getElementById('add').addEventListener('click', function () {
             document.getElementById('booking_system').style.display = 'block';
@@ -300,6 +318,37 @@ if($_SESSION['current']->getPrivilege() > 0){
         document.getElementById('cancel').addEventListener('click', function () {
             document.getElementById('booking_system').style.display = 'none';
         });
+
+        function showAppointmentDetails(bookingId) {
+            // AJAX call to get appointment details
+            fetch('main.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=get_appointment_details&booking_id=' + bookingId
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('appointmentDetails').innerHTML = data;
+                document.getElementById('appointmentModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading appointment details');
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('appointmentModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('appointmentModal')) {
+                closeModal();
+            }
+        }
     </script>
 
 </body>
