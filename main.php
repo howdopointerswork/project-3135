@@ -360,6 +360,9 @@
 
 			$_SESSION['page'] = 'search.php';
 			
+			// Get the search query
+			$query = filter_input(INPUT_POST, 'query', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+			
 			// Add Font Awesome and custom stylesheet
 			echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">';
 			echo '<link rel="stylesheet" href="style.css">';
@@ -399,53 +402,99 @@
 				echo '</div>';
 			}*/
 
-			// Activities section
-			if (!empty($acts)) {
-				echo '<div class="search-card">';
-				echo '<h3>Activities</h3>';
-				echo '<i class="fas fa-running"></i>';
-				echo '<ul>';
+			// Show search results only if query is provided
+			if (!empty($query)) {
+				echo '<h2 style="color: #1976D2; margin: 2em 0 1em 0;">Search Results for: "' . htmlspecialchars($query) . '"</h2>';
+				
+				$hasResults = false;
+				
+				// Activities section
+				$matchingActivities = [];
 				foreach ($acts as $activity) {
-					echo '<li>' . htmlspecialchars($activity['description']) . '</li>';
-				}
-				echo '</ul>';
-				echo '</div>';
-			}
-
-			// Bookings section
-			if (!empty($books)) {
-				echo '<div class="search-card">';
-				echo '<h3>Bookings</h3>';
-				echo '<i class="fas fa-calendar-alt"></i>';
-				echo '<ul>';
-				foreach ($books as $booking) {
-					echo '<li>' . htmlspecialchars($booking['description']) . '</li>';
-				}
-				echo '</ul>';
-				echo '</div>';
-			}
-
-			// Appointments section
-				echo '<div class="search-card">';
-				echo '<h3>Appointments</h3>';
-				echo '<i class="fas fa-calendar-alt"></i>';
-				echo '<ul>';
-			if (!empty($apts)) {
-				echo '<div class="search-card">';
-				echo '<h3>Appointments</h3>';
-				echo '<i class="fas fa-user-md"></i>';
-				echo '<ul>';
-				foreach ($apts as $appointment) {
-					if(str_contains($appointment['appointment_date'], $query) && $query != ''){
-
-						echo '<li><span style="background-color: yellow">' . $appointment['appointment_date'] . '</span></li>';
-						}else{
+					$searchText = '';
+					if (isset($activity['exercise'])) $searchText .= ' ' . $activity['exercise'];
+					if (isset($activity['meds'])) $searchText .= ' ' . $activity['meds'];
+					if (isset($activity['log_date'])) $searchText .= ' ' . $activity['log_date'];
 					
-
-							echo '<li>' . htmlspecialchars($appointment['appointment_date']) . '</li>';
-						}
+					if (str_contains(strtolower($searchText), strtolower($query))) {
+						$matchingActivities[] = $activity;
+					}
 				}
-				echo '</ul>';
+				
+				if (!empty($matchingActivities)) {
+					$hasResults = true;
+					echo '<div class="search-card">';
+					echo '<h3><i class="fas fa-running"></i> Health Activities</h3>';
+					echo '<ul>';
+					foreach ($matchingActivities as $activity) {
+						$displayText = '';
+						if (!empty($activity['calories'])) $displayText .= 'Calories: ' . $activity['calories'] . ' ';
+						if (!empty($activity['sleep'])) $displayText .= 'Sleep: ' . $activity['sleep'] . 'hrs ';
+						if (!empty($activity['water'])) $displayText .= 'Water: ' . $activity['water'] . 'mL ';
+						if (!empty($activity['exercise'])) $displayText .= 'Exercise: ' . $activity['exercise'] . ' ';
+						if (!empty($activity['meds'])) $displayText .= 'Medication: ' . $activity['meds'] . ' ';
+						$displayText .= '(' . $activity['log_date'] . ')';
+						
+						$highlighted = str_ireplace($query, '<span style="background-color: yellow">' . $query . '</span>', htmlspecialchars($displayText));
+						echo '<li>' . $highlighted . '</li>';
+					}
+					echo '</ul>';
+					echo '</div>';
+				}
+
+				// Bookings section
+				$matchingBookings = [];
+				foreach ($books as $booking) {
+					if (str_contains(strtolower($booking['description']), strtolower($query)) || 
+						str_contains(strtolower($booking['booking_date']), strtolower($query))) {
+						$matchingBookings[] = $booking;
+					}
+				}
+				
+				if (!empty($matchingBookings)) {
+					$hasResults = true;
+					echo '<div class="search-card">';
+					echo '<h3><i class="fas fa-calendar-alt"></i> Bookings</h3>';
+					echo '<ul>';
+					foreach ($matchingBookings as $booking) {
+						$highlighted = str_ireplace($query, '<span style="background-color: yellow">' . $query . '</span>', htmlspecialchars($booking['description'] . ' - ' . $booking['booking_date']));
+						echo '<li>' . $highlighted . '</li>';
+					}
+					echo '</ul>';
+					echo '</div>';
+				}
+
+				// Appointments section
+				$matchingAppointments = [];
+				foreach ($apts as $appointment) {
+					if (str_contains(strtolower($appointment['appointment_date']), strtolower($query))) {
+						$matchingAppointments[] = $appointment;
+					}
+				}
+				
+				if (!empty($matchingAppointments)) {
+					$hasResults = true;
+					echo '<div class="search-card">';
+					echo '<h3><i class="fas fa-user-md"></i> Appointments</h3>';
+					echo '<ul>';
+					foreach ($matchingAppointments as $appointment) {
+						$highlighted = str_ireplace($query, '<span style="background-color: yellow">' . $query . '</span>', htmlspecialchars($appointment['appointment_date']));
+						echo '<li>' . $highlighted . '</li>';
+					}
+					echo '</ul>';
+					echo '</div>';
+				}
+				
+				if (!$hasResults) {
+					echo '<div class="search-card">';
+					echo '<h3><i class="fas fa-search"></i> No Results Found</h3>';
+					echo '<p>No results found for "' . htmlspecialchars($query) . '". Try a different search term.</p>';
+					echo '</div>';
+				}
+			} else {
+				echo '<div class="search-card">';
+				echo '<h3><i class="fas fa-search"></i> Enter a Search Term</h3>';
+				echo '<p>Use the search box above to find activities, bookings, and appointments.</p>';
 				echo '</div>';
 			}
 
