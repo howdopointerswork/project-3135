@@ -71,7 +71,7 @@
 
 			echo '<div style="margin-bottom: 2em;">';
 			echo '<label id="thresholdLabel" style="font-size: 18px; font-weight: 600; display: block; margin-bottom: 0.5em;">Enter the number of Calories you want to track:</label>';
-			echo '<input type="text" name="threshold" placeholder="Enter threshold value" style="font-size: 18px; padding: 0.5em; width: 100%; border: 2px solid #ddd; border-radius: 8px;">';
+			echo '<input type="number" name="threshold" placeholder="Enter threshold value" required min="0" step="0.01" style="font-size: 18px; padding: 0.5em; width: 100%; border: 2px solid #ddd; border-radius: 8px;">';
 			echo '</div>';
 
 			echo '<input type="submit" name="action" value="Monitor" style="font-size: 18px; padding: 0.75em 2em; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(33,150,243,0.3);">';
