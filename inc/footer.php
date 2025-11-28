@@ -1,22 +1,16 @@
 <?php
-// Newsletter processing for footer signup. This runs when the footer is included on any page.
-$newsletter_email = '';
-$newsletter_error = '';
-$newsletter_success = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_submit'])) {
-  $newsletter_email = trim((string)($_POST['newsletter_email'] ?? ''));
-
-  if ($newsletter_email === '') {
-    $newsletter_error = 'Please enter your email address.';
-  } elseif (!filter_var($newsletter_email, FILTER_VALIDATE_EMAIL)) {
-    $newsletter_error = 'Please enter a valid email address.';
-  } else {
-    // TODO: persist subscription (DB, file, API). For now show success message.
-    $newsletter_success = 'Thanks — a confirmation email has been sent to ' . htmlspecialchars($newsletter_email, ENT_QUOTES, 'UTF-8') . '.';
-    // Clear the input on success so the field doesn't show the email again
-    $newsletter_email = '';
-  }
+// Get doctors list for footer - only if db connection exists
+$doctors = [];
+try {
+    if (file_exists(__DIR__ . '/../db.php')) {
+        require_once(__DIR__ . '/../db.php');
+        if (isset($db) && $db !== null) {
+            $doctors = getProfs($db);
+        }
+    }
+} catch (Exception $e) {
+    // Handle error silently for footer
+    $doctors = [];
 }
 ?>
 
@@ -50,29 +44,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_submit']))
 
       <div class="footer-content">
         <h3>Quick Links</h3>
-        <ul>
-          <li><a href="/project-3135/main.php">Home</a></li>
-          <li><a href="/project-3135/about.php">About Us</a></li>
-          <li><a href="/project-3135/services.php">Services</a></li>
-          <li><a href="/project-3135/contact.php">Contact</a></li>
-        </ul>
+        <div class="login">
+          <a href="/project-3135/login.php" style="color: #ffffff !important; text-decoration: none !important; display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-sign-in-alt" style="color: #ffb400 !important;"></i> Login to your WyseCare account</a>
+        </div>
+        <div class="signup">
+          <a href="/project-3135/signup.php" style="color: #ffffff !important; text-decoration: none !important; display: inline-flex; align-items: center; gap: 8px;"><i class="fas fa-user-plus" style="color: #ffb400 !important;"></i> Sign up for a WyseCare account</a>
+        </div>
       </div>
 
       <div class="footer-content">
-        <form class="newsletter-form" action="<?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>" method="post">
-          <h3>Newsletter Signup</h3>
-          <div class="newsletter-row">
-            <input class="newsletter-input" type="email" name="newsletter_email" placeholder="Enter your email" required value="<?php echo htmlspecialchars($newsletter_email, ENT_QUOTES, 'UTF-8'); ?>">
-            <button class="newsletter-btn" type="submit" name="newsletter_submit" value="1">Subscribe</button>
-          </div>
-          <p class="newsletter-note">Get updates, tips, and special offers — no spam.</p>
-          <?php if ($newsletter_error): ?>
-            <p class="newsletter-error"><?php echo htmlspecialchars($newsletter_error, ENT_QUOTES, 'UTF-8'); ?></p>
+        <h3>Our Doctors</h3>
+        <ul class="doctors-list">
+          <?php if (!empty($doctors)): ?>
+            <?php foreach ($doctors as $doctor): ?>
+              <li>
+                <i class="fas fa-user-md"></i> 
+                <?php echo htmlspecialchars($doctor['name'], ENT_QUOTES, 'UTF-8'); ?>
+                <span class="specialty"><?php echo htmlspecialchars($doctor['specialty'], ENT_QUOTES, 'UTF-8'); ?></span>
+              </li>
+            <?php endforeach; ?>
+          <?php else: ?>
+            <li><i class="fas fa-user-md"></i> Our professional team is here to help you</li>
           <?php endif; ?>
-          <?php if ($newsletter_success): ?>
-            <p class="newsletter-success"><?php echo htmlspecialchars($newsletter_success, ENT_QUOTES, 'UTF-8'); ?></p>
-          <?php endif; ?>
-        </form>
+        </ul>
       </div>
     </div> <!-- .footer-top -->
 
