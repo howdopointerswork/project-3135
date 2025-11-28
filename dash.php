@@ -30,6 +30,7 @@ $newdate = new DateTime('today');
     <body>
 	<h1 id="greeting">Hello, <?php echo $_SESSION['current']->getName();?></h1>
 	<h2 style="text-align: center"><?php echo $newdate->format("Y-m-d") . " " . date("H:i:s", time()-28800); ?></h2>
+	<?php echo '<img src="img/' . getUsername($db, $_SESSION['current']->getName())[7] . '">'; ?>
 
 	<div class="dashboard-stats-container">
 		<div class="stat-card">

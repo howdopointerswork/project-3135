@@ -190,6 +190,17 @@
 
 					$_SESSION['current'] = new User($result[0], $result[1], $result[3], $result[4], $result[5], $result[6], $result[7], $result[9]);
 
+				
+					$_SESSION['current']->setImg('img/' . getUsername($db, $username)[7]);
+		
+					//$_SESSION['date'] = date(time()-28800);
+					
+					//$d = date('Y-m-d');
+					
+					//$_SESSION['date'] = new DateTime()->format('Y-m-d');
+
+				
+
 					$_SESSION['activities'] = getActivities($db, $_SESSION['current']->getID());
 					$_SESSION['bookings'] = getBookings($db, $_SESSION['current']->getID());
 
@@ -201,7 +212,7 @@
 
 							if(end($apt) > $_SESSION['date']){
 
-								echo 'upcoming!';
+								//echo 'upcoming!';
 								$apt_alert = new Alert();
 							}
 						}
@@ -277,7 +288,11 @@
 
 				//encrypt here
 				$hash = password_hash($field2, PASSWORD_DEFAULT);
+				$checkUser = getUsername($db, $username);
 				
+				
+
+				if(!$checkUser){
 				addUser($db, $field1, $hash, $field3, $field4, $field5, $field6, 'profile.jpg', $_SESSION['date'], 0);
 
 				// FIXED: Properly retrieve the new user and set up session
@@ -292,6 +307,12 @@
 				
 				include ('dash.php');
 				exit;
+				}else{
+
+					echo 'User already exists. Please pick a different name.';
+					include('signup.php');
+					exit;
+				}
 			}else{
 
 				// FIXED: Completed the closing tag for error message
@@ -314,6 +335,7 @@
 
 
 					$_SESSION['current'] = new User($result[0], $result[1], $result[3], $result[4], $result[5], $result[6], $result[7], $result[8]);
+					$_SESSION['current']->setImg($result[7]);
 					include('dash.php');
 					exit;
 			}
@@ -353,17 +375,29 @@
 			echo '<div class="search-container">';
 
 			// User section
-			if (!empty($users)) {
+
+
+			/*if (!empty($users)) {
 				echo '<div class="search-card">';
 				echo '<h3>Users</h3>';
 				echo '<i class="fas fa-users"></i>';
-				echo '<ul>';
-				foreach ($users as $user) {
-					echo '<li>' . htmlspecialchars($user['name']) . '</li>';
+				echo '<ul>';*/
+				
+				/*foreach ($users as $user) {
+					
+					if(str_contains($user['username'], $query) && $query != ''){
+
+						echo '<li><span style="background-color: yellow">' . $user['username'] . '</span></li>';
+						}else{
+					
+
+						echo '<li>' . htmlspecialchars($user['username']) . '</li>';
+						}
+
 				}
 				echo '</ul>';
 				echo '</div>';
-			}
+			}*/
 
 			// Activities section
 			if (!empty($acts)) {
@@ -392,13 +426,24 @@
 			}
 
 			// Appointments section
+				echo '<div class="search-card">';
+				echo '<h3>Appointments</h3>';
+				echo '<i class="fas fa-calendar-alt"></i>';
+				echo '<ul>';
 			if (!empty($apts)) {
 				echo '<div class="search-card">';
 				echo '<h3>Appointments</h3>';
 				echo '<i class="fas fa-user-md"></i>';
 				echo '<ul>';
 				foreach ($apts as $appointment) {
-					echo '<li>' . htmlspecialchars($appointment['description']) . '</li>';
+					if(str_contains($appointment['appointment_date'], $query) && $query != ''){
+
+						echo '<li><span style="background-color: yellow">' . $appointment['appointment_date'] . '</span></li>';
+						}else{
+					
+
+							echo '<li>' . htmlspecialchars($appointment['appointment_date']) . '</li>';
+						}
 				}
 				echo '</ul>';
 				echo '</div>';
@@ -556,7 +601,12 @@
 			$vals[] = filter_input(INPUT_POST, 'Weight');
 			$vals[] = filter_input(INPUT_POST, 'Gender');
 
-			$set = true;
+			$selected = filter_input(INPUT_POST, 'selected');
+
+			//put into vals
+			$_SESSION['current']->setImg($selected . '.png');
+			$vals[] = $selected . '.png';
+		
 
 			foreach($vals as $i => $val){
 

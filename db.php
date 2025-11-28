@@ -16,7 +16,7 @@
                
         	$stmnt = $db->prepare($qry);
 
-        	$stmnt->bindValue(':username', $username);
+        $stmnt->bindValue(':username', $username);
 		$stmnt->bindValue(':password', $password);
 		$stmnt->bindValue(':age', $age);
 		$stmnt->bindValue(':height', $ht);
@@ -28,7 +28,13 @@
 
 
 		$stmnt->execute();
+}else{
+
+	echo 'User already exists! Try a different username.';
+	include('signup.php');
 }
+
+
 		$user = getUsername($db, $username);
 
 		$qry = "INSERT INTO monitor (id) VALUES (:id)";
@@ -275,7 +281,8 @@
 			age = :age,
 			height = :height,
 			weight = :weight,
-			gender = :gender
+			gender = :gender,
+			profile_img = :img
 			WHERE user_id = :id';
 
 		$stmnt = $db->prepare($qry);
@@ -285,6 +292,7 @@
 		$stmnt->bindValue(':height', (float) $vals[2]);
 		$stmnt->bindValue(':weight', (float) $vals[3]);
 		$stmnt->bindValue(':gender', $vals[4]);
+		$stmnt->bindValue(':img', $vals[5]);
 		$stmnt->bindValue(':id', $id);
 	
 		
