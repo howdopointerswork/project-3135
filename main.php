@@ -182,7 +182,7 @@
 					
 					//$d = date('Y-m-d');
 					
-					$_SESSION['date'] = new DateTime('today');
+					//$_SESSION['date'] = new DateTime()->format('Y-m-d');
 
 				
 
@@ -360,13 +360,13 @@
 			// User section
 
 
-			if (!empty($users)) {
+			/*if (!empty($users)) {
 				echo '<div class="search-card">';
 				echo '<h3>Users</h3>';
 				echo '<i class="fas fa-users"></i>';
-				echo '<ul>';
+				echo '<ul>';*/
 				
-				foreach ($users as $user) {
+				/*foreach ($users as $user) {
 					
 					if(str_contains($user['username'], $query) && $query != ''){
 
@@ -380,7 +380,7 @@
 				}
 				echo '</ul>';
 				echo '</div>';
-			}
+			}*/
 
 			// Activities section
 			if (!empty($acts)) {
@@ -435,15 +435,19 @@
 			}
 
 			// Appointments section
+				echo '<div class="search-card">';
+				echo '<h3>Appointments</h3>';
+				echo '<i class="fas fa-calendar-alt"></i>';
+				echo '<ul>';
 			if (!empty($apts)) {
 				foreach ($apts as $appointment) {
-					if(str_contains($user['username'], $query) && $query != ''){
+					if(str_contains($appointment['appointment_date'], $query) && $query != ''){
 
-						echo '<li><span style="background-color: yellow">' . $appointment['description'] . '</span></li>';
+						echo '<li><span style="background-color: yellow">' . $appointment['appointment_date'] . '</span></li>';
 						}else{
 					
 
-							echo '<li>' . htmlspecialchars($appointment['description']) . '</li>';
+							echo '<li>' . htmlspecialchars($appointment['appointment_date']) . '</li>';
 						}
 				}
 				echo '</ul>';

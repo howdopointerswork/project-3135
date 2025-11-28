@@ -37,7 +37,7 @@
 
 
 
-			$results = getActivitiesByDate($db, $_SESSION['current']->getID(), $mod, $_SESSION['date']);
+			$results = getActivitiesByDate($db, $_SESSION['current']->getID(), $mod, date('Y-m-d'));
 
 			$monitor = getMonitor($db, $_SESSION['current']->getID());
 			
