@@ -5,10 +5,26 @@ require_once('user.php');
 require_once('db.php');
 require_once('alerts.php');
 
-//require('db.php');
-
 if(session_status() === PHP_SESSION_NONE){
 	session_start();
+}
+
+// Establish database connection
+$dsn = 'mysql:host=127.0.0.1;dbname=health_system_final';
+$user = 'root';
+$pw = '';
+
+try {
+    $db = new PDO($dsn, $user, $pw);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
+
+// Check if user is logged in
+if (!isset($_SESSION['current']) || !$_SESSION['current']) {
+    header('Location: main.php?action=login');
+    exit;
 }
 
 include('nav.php');
@@ -50,6 +66,94 @@ include('nav.php');
             
             .profile-back-btn i {
                 font-size: 14px;
+            }
+            
+            /* Delete Modal Styles */
+            .delete-modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                backdrop-filter: blur(5px);
+            }
+            
+            .delete-modal-content {
+                background-color: #fff;
+                margin: 15% auto;
+                padding: 2em;
+                border-radius: 12px;
+                width: 400px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                text-align: center;
+                animation: slideIn 0.3s ease-out;
+            }
+            
+            @keyframes slideIn {
+                from { transform: translateY(-50px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+            
+            .delete-icon {
+                font-size: 48px;
+                color: #f44336;
+                margin-bottom: 1em;
+            }
+            
+            .delete-title {
+                color: #333;
+                font-size: 24px;
+                font-weight: 600;
+                margin-bottom: 0.5em;
+            }
+            
+            .delete-message {
+                color: #666;
+                font-size: 16px;
+                margin-bottom: 2em;
+                line-height: 1.5;
+            }
+            
+            .delete-buttons {
+                display: flex;
+                gap: 1em;
+                justify-content: center;
+            }
+            
+            .delete-btn-cancel {
+                padding: 0.75em 1.5em;
+                background: #f5f5f5;
+                color: #666;
+                border: 2px solid #ddd;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            
+            .delete-btn-cancel:hover {
+                background: #e0e0e0;
+            }
+            
+            .delete-btn-confirm {
+                padding: 0.75em 1.5em;
+                background: #f44336;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            
+            .delete-btn-confirm:hover {
+                background: #d32f2f;
+                transform: translateY(-1px);
             }
         </style>
     </head>
@@ -165,7 +269,7 @@ include('nav.php');
                 echo '<input type="hidden" name="actID" value="' . $result[1] . '">';
                 echo '<input type="hidden" name="logID" value="' . $result[0] . '">';
                 echo '<button type="submit" name="action" value="Edit Activity" style="background: #4CAF50; color: white; border: none; padding: 0.5em 1em; border-radius: 6px; cursor: pointer; font-size: 14px;" title="Edit Activity"><i class="fas fa-edit"></i></button>';
-                echo '<button type="submit" name="action" value="Delete Activity" style="background: #f44336; color: white; border: none; padding: 0.5em 1em; border-radius: 6px; cursor: pointer; font-size: 14px;" title="Delete Activity" onclick="return confirm(\'Are you sure you want to delete this activity?\')"><i class="fas fa-trash"></i></button>';
+                echo '<button type="button" onclick="showDeleteModal(' . $result[1] . ', ' . $result[0] . ')" style="background: #f44336; color: white; border: none; padding: 0.5em 1em; border-radius: 6px; cursor: pointer; font-size: 14px;" title="Delete Activity"><i class="fas fa-trash"></i></button>';
                 echo '</form>';
                 echo '</td>';
                 
@@ -198,10 +302,61 @@ include('nav.php');
             echo '</div>';
         }
         ?>
-        
-      <!--  <button id="add" name="add">Log Activity</button> -->
+
+        <!-- Delete Confirmation Modal -->
+        <div id="deleteModal" class="delete-modal">
+            <div class="delete-modal-content">
+                <div class="delete-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h2 class="delete-title">Delete Activity?</h2>
+                <p class="delete-message">
+                    Are you sure you want to delete this activity? This action cannot be undone.
+                </p>
+                <div class="delete-buttons">
+                    <button type="button" class="delete-btn-cancel" onclick="closeDeleteModal()">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="button" class="delete-btn-confirm" onclick="confirmDelete()">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden form for delete submission -->
+        <form id="deleteForm" method="post" action="main.php" style="display: none;">
+            <input type="hidden" name="actID" id="deleteActID">
+            <input type="hidden" name="logID" id="deleteLogID">
+            <input type="hidden" name="action" value="Delete Activity">
+        </form>
         
 <script>
+
+let currentActID, currentLogID;
+
+function showDeleteModal(actID, logID) {
+    currentActID = actID;
+    currentLogID = logID;
+    document.getElementById('deleteModal').style.display = 'block';
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+function confirmDelete() {
+    document.getElementById('deleteActID').value = currentActID;
+    document.getElementById('deleteLogID').value = currentLogID;
+    document.getElementById('deleteForm').submit();
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    if (event.target == document.getElementById('deleteModal')) {
+        closeDeleteModal();
+    }
+}
 
 document.getElementById('add').addEventListener('click', function(){
     
