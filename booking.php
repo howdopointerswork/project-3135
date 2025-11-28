@@ -33,10 +33,11 @@ include('nav.php');
         /* Popup Modal Styles */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
         .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border-radius: 10px; width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        #appointmentDetails { text-align: left; }
         .close { color: #aaa; float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
         .close:hover { color: #000; }
-        .details-btn { background: #2196F3; color: white; border: none; padding: 0.3em 0.6em; border-radius: 4px; cursor: pointer; font-size: 12px; margin-top: 4px; }
-        .details-btn:hover { background: #1976D2; }
+        .details-btn { background: white; color: #2196F3; border: 2px solid #2196F3; padding: 0.4em 0.8em; border-radius: 4px; cursor: pointer; font-size: 16px; margin: 0.2em; }
+        .details-btn:hover { background: #f0f8ff; }
     </style>
 </head>
 <body>
