@@ -75,7 +75,7 @@ include('nav.php');
 
 					echo '<input type="radio" name="picture" value="prof' . $index . '">';
 				}*/
-				echo '<input type="hidden" id="selected" name="selected" value="prof.jpg">';
+				echo '<input type="hidden" id="selected" name="selected" value="prof">';
 ?>
 				<div class="profile-actions">
 					<input type='submit' name='action' value='Save' id='Save' class='profile-btn profile-btn-save' style='display: none;'>
@@ -125,19 +125,25 @@ include('nav.php');
 			let checked = document.querySelector('input[name="prof"]:checked');
 
 			if(checked){
-					console.log('working');
-
+					console.log('Profile picture selected:', checked.value);
 					document.getElementById('selected').value = checked.value;
+			} else {
+					console.log('No profile picture selected, keeping current');
 			}
 		});
 
 		document.getElementById('change').addEventListener('click', function(){
 
-				if(document.getElementById('icons').style.display == 'none'){
+				if(document.getElementById('icons').style.display == 'none' || document.getElementById('icons').style.display == ''){
 
-					document.getElementById('icons').style.display = '';
-					document.getElementById('change').style.display = 'none';
+					document.getElementById('icons').style.display = 'block';
+					this.innerText = 'Hide Pictures';
+					this.style.backgroundColor = '#f44336';
 				
+				} else {
+					document.getElementById('icons').style.display = 'none';
+					this.innerText = 'Change Picture';
+					this.style.backgroundColor = 'white';
 				}
 		});
 	</script>

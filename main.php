@@ -593,6 +593,8 @@
 
 		case 'Save':
 			
+			//$set = true;
+			$set = false;
 			$vals = [];
 
 			$vals[] = filter_input(INPUT_POST, 'Username');
