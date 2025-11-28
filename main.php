@@ -182,7 +182,7 @@
 					
 					//$d = date('Y-m-d');
 					
-					$_SESSION['date'] = new DateTime('today')->format('Y-m-d');
+					$_SESSION['date'] = new DateTime('today');
 
 				
 
