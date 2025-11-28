@@ -56,31 +56,56 @@
 		//	echo "Today is: " . $_SESSION['date'] . "<br>"; 
 			$arr = ['BMI', 'Calories', 'Sleep', 'Water', 'Exercise', 'Medication'];
 
-			echo '<form method="post" action="main.php">';		
+			echo '<form method="post" action="main.php" style="margin: 2em auto; max-width: 600px;">';		
 
-			echo '<span style="font-size: 24px;">Attribute to Monitor:</span> 
-				<select name="toMonitor" style="font-size: 24px; margin: 0 auto;">';
+			echo '<div style="margin-bottom: 2em;">';
+			echo '<label style="font-size: 20px; font-weight: 600; display: block; margin-bottom: 0.5em;">Select Attribute to Monitor:</label>';
+			echo '<select name="toMonitor" id="monitorSelect" style="font-size: 18px; padding: 0.5em; width: 100%; border: 2px solid #ddd; border-radius: 8px;">';
 			
 			foreach($arr as $item){
-
-				echo "<option value=$item>$item</option>";
+				echo "<option value='$item'>$item</option>";
 			}
-	
 			
-
 			echo '</select>';
+			echo '</div>';
 
+			echo '<div style="margin-bottom: 2em;">';
+			echo '<label id="thresholdLabel" style="font-size: 18px; font-weight: 600; display: block; margin-bottom: 0.5em;">Enter the number of Calories you want to track:</label>';
+			echo '<input type="text" name="threshold" placeholder="Enter threshold value" style="font-size: 18px; padding: 0.5em; width: 100%; border: 2px solid #ddd; border-radius: 8px;">';
+			echo '</div>';
 
-			echo "<br>";
-
-			echo '<input type="text" name="threshold">';
-
-
-			echo "<br>";
-
-			echo '<input type="submit" name="action" value="Monitor">';
+			echo '<input type="submit" name="action" value="Monitor" style="font-size: 18px; padding: 0.75em 2em; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(33,150,243,0.3);">';
 
 			echo '</form>';
+			
+			// ADDED: JavaScript to dynamically update the threshold label based on selected attribute
+			echo '<script>
+				document.getElementById("monitorSelect").addEventListener("change", function() {
+					var selected = this.value;
+					var label = document.getElementById("thresholdLabel");
+					
+					switch(selected) {
+						case "BMI":
+							label.textContent = "Enter your target BMI value:";
+							break;
+						case "Calories":
+							label.textContent = "Enter the number of Calories you want to track:";
+							break;
+						case "Sleep":
+							label.textContent = "Enter the number of hours of Sleep you want to track:";
+							break;
+						case "Water":
+							label.textContent = "Enter the amount of Water (oz) you want to track:";
+							break;
+						case "Exercise":
+							label.textContent = "Enter the number of minutes of Exercise you want to track:";
+							break;
+						case "Medication":
+							label.textContent = "Enter the number of times you take Medication you want to track:";
+							break;
+					}
+				});
+			</script>';
 
 
 			$avg = 0;
