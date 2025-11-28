@@ -231,9 +231,11 @@ if($_SESSION['current']->getPrivilege() > 0){
                 }
 
                 $booking = $dayMap[$day] ?? null;
+                $isConfirmed = $booking && checkAppointments($db, $_SESSION['current']->getID(), $booking['id']);
                 $cellClass = $booking ? '' : 'empty-day';
+                $cellStyle = $isConfirmed ? 'background: #4CAF50; color: white;' : '';
 
-                echo "<td class='$cellClass'>";
+                echo "<td class='$cellClass' style='$cellStyle'>";
                 echo "<div class='day-num'>$day</div>";
 
                 if ($booking) {
@@ -254,7 +256,7 @@ if($_SESSION['current']->getPrivilege() > 0){
 		    echo "</form>";
 		    }else{
 
-			echo '<p style="color: green">Appointment Confirmed</p>';
+			echo '<p style="color: white; font-weight: bold;">Appointment Confirmed</p>';
 		    }
 
 
