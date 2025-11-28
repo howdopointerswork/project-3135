@@ -116,78 +116,47 @@ if($_SESSION['current']->getPrivilege() > 0){
 
     echo "<select name='booking' style='padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;' onmouseover='this.style.borderColor=\"#1976D2\"' onmouseout='this.style.borderColor=\"#ddd\"'>";
 
-	foreach(getAllBookings($db) as $booking){
+    foreach(getAllBookings($db) as $booking){
+        echo "<option value='" . $booking[0] . "|" . $booking[1] . "'>ID:" . $booking[0] . " - " . htmlspecialchars($booking[3]) . " (" . $booking[2] . ")</option>";
+    }
+    echo "</select>";
+    echo '</div>';
 
-	echo "<option value='" . $booking[0] . "|" . $booking[1] . "'>ID:" . $booking[0] . " - " . htmlspecialchars($booking[3]) . " (" . $booking[2] . ")</option>";
-	//	echo "<input type='hidden' name='match' value=" . $booking[1] . ">";
-
-	}
-	echo "</select>";
-
-	echo "<select name='prof'>";
-	foreach(getProfs($db) as $prof){
-
-		echo "<option value=" . $prof[0] . ">" . htmlspecialchars($prof[1]) . "</option>";		
-	}
-	echo "</select>";
-
-
-
-	   echo '</div>';
+    // Second Row - Professional and Date Selection
+    echo '<div style="display: flex; flex-direction: column;">';
+    echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-user-md"></i> Select Doctor</label>';
+    echo "<select name='prof' style='padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;' onmouseover='this.style.borderColor=\"#1976D2\"' onmouseout='this.style.borderColor=\"#ddd\"'>";
+    foreach(getProfs($db) as $prof){
+        echo "<option value=" . $prof[0] . ">" . htmlspecialchars($prof[1]) . "</option>";
+    }
+    echo "</select>";
+    echo '</div>';
 
 
     
 
 
-    // Date input
-
-
+    // Third Row - Date and Time
     echo '<div style="display: flex; flex-direction: column;">';
-
-
     echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-calendar"></i> Appointment Date</label>';
-
-
     echo '<input type="date" name="app_date" required style="padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;" onmouseover="this.style.borderColor=\'#1976D2\'" onmouseout="this.style.borderColor=\'#ddd\'">';
-
-
     echo '</div>';
-
-
-    
-
-
-    // Time input
-
 
     echo '<div style="display: flex; flex-direction: column;">';
-
-
     echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-clock"></i> Appointment Time</label>';
-
-
     echo '<input type="time" name="app_time" required style="padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;" onmouseover="this.style.borderColor=\'#1976D2\'" onmouseout="this.style.borderColor=\'#ddd\'">';
-
-
     echo '</div>';
 
 
-    
-
-
-    // Submit button
-
-
+    // Fourth Row - Button aligned with doctor column
+    echo '<div></div>'; // Empty div for alignment
     echo '<div style="display: flex; align-items: end;">';
+    echo '<button type="submit" name="action" value="Confirm Appointment" style="padding: 0.8em 2em; background: #2196F3; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(33,150,243,0.3); transition: all 0.2s; display: flex; align-items: center; gap: 0.5em; width: 100%;" onmouseover="this.style.background=\'#1976D2\'; this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 6px 16px rgba(33,150,243,0.4)\'" onmouseout="this.style.background=\'#2196F3\'; this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 4px 12px rgba(33,150,243,0.3)\'">';
+    echo '<i class="fas fa-check-circle"></i> Confirm Appointment';
+    echo '</button>';
+    echo '</div>';
 
-
-    echo '<input type="submit" name="action" value="Confirm Appointment" style="padding: 0.75em 1.5em; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(33,150,243,0.3); transition: all 0.2s; width: 100%;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 6px 16px rgba(33,150,243,0.4)\'" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 4px 12px rgba(33,150,243,0.3)\'">';
-
-
-   
-
-
-	echo '</form>';
+    echo '</form>';
 
      echo '</div>';
 }
