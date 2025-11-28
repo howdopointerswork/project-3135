@@ -8,6 +8,17 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Establish database connection
+$dsn = 'mysql:host=127.0.0.1;dbname=health_system_final';
+$user = 'root';
+$pw = '';
+
+try {
+    $db = new PDO($dsn, $user, $pw);
+} catch(PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
+
 include('nav.php');
 
 // Debug (remove in production)
@@ -196,22 +207,43 @@ if($_SESSION['current']->getPrivilege() > 0){
 
     <!-- Calendar Display -->
     <?php
+    // Handle month navigation
+    $currentYear = date('Y');
+    $currentMonth = date('n');
+    
+    // Check for POST navigation first, then GET, then default to current
+    if (isset($_POST['nav_year']) && isset($_POST['nav_month'])) {
+        $year = (int)$_POST['nav_year'];
+        $month = (int)$_POST['nav_month'];
+    } else {
+        $year = isset($_GET['year']) ? (int)$_GET['year'] : $currentYear;
+        $month = isset($_GET['month']) ? (int)$_GET['month'] : $currentMonth;
+    }
+    
+    // Validate month/year bounds
+    if ($month < 1) { $month = 12; $year--; }
+    if ($month > 12) { $month = 1; $year++; }
+    if ($year < 2020) { $year = 2020; }
+    if ($year > 2030) { $year = 2030; }
+    
     $bookings = getBookings($db, $_SESSION['current']->getID());
 
-    // Build day → booking map
+    // Build day → booking map for selected month/year
     $dayMap = [];
     foreach ($bookings as $b) {
-        $day = (int)date('j', strtotime($b['booking_date'])); // 1–31
-        $dayMap[$day] = [
-            'id' => $b['id'],
-            'desc' => htmlspecialchars($b['description'])
-        ];
+        $bookingDate = strtotime($b['booking_date']);
+        $bookingYear = (int)date('Y', $bookingDate);
+        $bookingMonth = (int)date('n', $bookingDate);
+        
+        // Only include bookings from the selected month/year
+        if ($bookingYear == (int)$year && $bookingMonth == (int)$month) {
+            $day = (int)date('j', $bookingDate);
+            $dayMap[$day] = [
+                'id' => $b['id'],
+                'desc' => htmlspecialchars($b['description'])
+            ];
+        }
     }
-
-    // Current month
-    $today = getdate();
-    $year = $today['year'];
-    $month = $today['mon'];
     $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
     $firstDay = mktime(0, 0, 0, $month, 1, $year);
     $startWeek = date('w', $firstDay); // 0=Sun, 6=Sat
@@ -219,6 +251,39 @@ if($_SESSION['current']->getPrivilege() > 0){
     ?>
 
     <div class="calendar">
+        <!-- Month Navigation -->
+        <div style="text-align: center; margin-bottom: 1em; display: flex; justify-content: space-between; align-items: center; max-width: 300px; margin: 0 auto 1em auto;">
+            <?php 
+                $prevMonth = $month - 1;
+                $prevYear = $year;
+                if ($prevMonth < 1) { $prevMonth = 12; $prevYear--; }
+                
+                $nextMonth = $month + 1;
+                $nextYear = $year;
+                if ($nextMonth > 12) { $nextMonth = 1; $nextYear++; }
+            ?>
+            
+            <form method="post" style="display: inline;">
+                <input type="hidden" name="nav_month" value="<?= $prevMonth ?>">
+                <input type="hidden" name="nav_year" value="<?= $prevYear ?>">
+                <button type="submit" style="background: #2196F3; color: white; padding: 0.5em 1em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                    <i class="fas fa-chevron-left"></i> Prev
+                </button>
+            </form>
+            
+            <h3 style="margin: 0; color: #1976D2; font-size: 18px;">
+                <?= date('F Y', mktime(0, 0, 0, $month, 1, $year)) ?>
+            </h3>
+            
+            <form method="post" style="display: inline;">
+                <input type="hidden" name="nav_month" value="<?= $nextMonth ?>">
+                <input type="hidden" name="nav_year" value="<?= $nextYear ?>">
+                <button type="submit" style="background: #2196F3; color: white; padding: 0.5em 1em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </form>
+        </div>
+        
         <table>
             <tr>
                 <?php foreach ($dayNames as $dn): ?>
@@ -297,9 +362,15 @@ if($_SESSION['current']->getPrivilege() > 0){
 
     <!-- Add Booking Button -->
     <div style="text-align: center; margin: 2rem;">
-        <button id="add" style="font-size: 18px; padding: 0.7em 1.5em; background: #2196F3; color: white; border: none; cursor: pointer;">
-            Add Booking
+        <button id="add" style="font-size: 18px; padding: 0.7em 1.5em; background: #2196F3; color: white; border: none; cursor: pointer; border-radius: 5px;">
+            <i class="fas fa-plus"></i> Add Booking
         </button>
+        
+        <?php if ($month != $currentMonth || $year != $currentYear): ?>
+            <a href="booking.php" style="display: inline-block; margin-left: 1em; font-size: 16px; padding: 0.7em 1.5em; background: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
+                <i class="fas fa-home"></i> Current Month
+            </a>
+        <?php endif; ?>
     </div>
 
     <!-- Appointment Details Modal -->
