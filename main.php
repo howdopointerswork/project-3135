@@ -374,6 +374,7 @@
 			$acts = getActivities($db, $_SESSION['current']->getID());
 			$books = getBookings($db, $_SESSION['current']->getID());
 			$apts = getAppointments($db, $_SESSION['current']->getID());
+			$profs = getProfs($db);
 
 			echo '<div class="search-container">';
 
@@ -484,7 +485,38 @@
 					echo '</ul>';
 					echo '</div>';
 				}
-				
+
+				// Professionals/Doctors section
+				$matchingProfessionals = [];
+				if (!empty($profs)) {
+					foreach ($profs as $professional) {
+						$profName = isset($professional['name']) ? $professional['name'] : '';
+						$profSpecialty = isset($professional['specialty']) ? $professional['specialty'] : '';
+						
+						if (!empty($query) && (
+							str_contains(strtolower($profName), strtolower($query)) || 
+							str_contains(strtolower($profSpecialty), strtolower($query)))) {
+							$matchingProfessionals[] = $professional;
+						}
+					}
+				}
+
+				if (!empty($matchingProfessionals)) {
+					$hasResults = true;
+					echo '<div class="search-card">';
+					echo '<h3><i class="fas fa-user-md"></i> Doctors & Professionals</h3>';
+					echo '<ul>';
+					foreach ($matchingProfessionals as $professional) {
+						$profName = isset($professional['name']) ? $professional['name'] : 'Unknown';
+						$profSpecialty = isset($professional['specialty']) ? $professional['specialty'] : 'General';
+						$displayText = $profName . ' - ' . $profSpecialty;
+						$highlighted = str_ireplace($query, '<span style="background-color: yellow">' . $query . '</span>', htmlspecialchars($displayText));
+						echo '<li>' . $highlighted . '</li>';
+					}
+					echo '</ul>';
+					echo '</div>';
+				}
+
 				if (!$hasResults) {
 					echo '<div class="search-card">';
 					echo '<h3><i class="fas fa-search"></i> No Results Found</h3>';
