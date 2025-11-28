@@ -15,8 +15,15 @@ $pw = '';
 
 try {
     $db = new PDO($dsn, $user, $pw);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch(PDOException $e) {
     die("Database connection failed: " . $e->getMessage());
+}
+
+// Check if user is logged in
+if (!isset($_SESSION['current']) || !$_SESSION['current']) {
+    header('Location: main.php?action=login');
+    exit;
 }
 
 include('nav.php');
@@ -190,60 +197,67 @@ if($_SESSION['current']->getPrivilege() > 0){
 	?>
 
     <!-- Add Booking Form (Hidden by Default) -->
-    <div id="booking_system" style="display: none; background: #f4f4f4; padding: 1.5rem; margin: 1rem auto; max-width: 500px; border: 1px solid #ccc;">
-        <form method='post' action='main.php'>
+    <div id="booking_system" style="display: none; background: #fff; padding: 2em; margin: 2em auto; max-width: 600px; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,0.12);">
+        <h2 style="color: #1976D2; margin-bottom: 1.5em; display: flex; align-items: center; gap: 0.5em;">
+            <i class="fas fa-calendar-plus"></i> Add New Booking
+        </h2>
+        
+        <form method='post' action='main.php' style="display: grid; gap: 1.2em;">
             <input type="hidden" name="userid" value="<?php echo $_SESSION['current']->getID(); ?>">
 
-            <label for="booking_date">Date</label><br>
-            <input type="date" name="booking_date" required style="width: 100%; padding: 0.5em; margin-bottom: 1em;"><br>
+            <div style="display: flex; flex-direction: column;">
+                <label for="booking_date" style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;">
+                    <i class="fas fa-calendar"></i> Select Date
+                </label>
+                <input type="date" name="booking_date" id="booking_date" required 
+                       style="padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;" 
+                       onmouseover="this.style.borderColor='#1976D2'" onmouseout="this.style.borderColor='#ddd'">
+            </div>
 
-            <label for="description">Description</label><br>
-            <textarea name="description" rows="3" style="width: 100%; padding: 0.5em; margin-bottom: 1em;"></textarea><br>
+            <div style="display: flex; flex-direction: column;">
+                <label for="description" style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;">
+                    <i class="fas fa-file-alt"></i> Description
+                </label>
+                <textarea name="description" id="description" rows="4" 
+                          style="padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s; resize: vertical;" 
+                          placeholder="Enter booking details..." 
+                          onmouseover="this.style.borderColor='#1976D2'" onmouseout="this.style.borderColor='#ddd'"></textarea>
+            </div>
 
-            <input type="submit" name="action" value="Add Booking" class="manage-btn">
+            <div style="display: flex; gap: 1em; justify-content: flex-end; margin-top: 1em;">
+                <button type="button" id="cancel" 
+                        style="padding: 0.75em 1.5em; background: #f5f5f5; color: #666; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;" 
+                        onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f5f5f5'">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                
+                <button type="submit" name="action" value="Add Booking" 
+                        style="padding: 0.75em 1.5em; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(33,150,243,0.3); transition: all 0.2s;" 
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(33,150,243,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(33,150,243,0.3)'">
+                    <i class="fas fa-plus"></i> Add Booking
+                </button>
+            </div>
         </form>
-        <button id="cancel" style="font-size: 16px; padding: 0.5em; margin-top: 0.5em;">Cancel</button>
     </div>
 
     <!-- Calendar Display -->
     <?php
-    // Handle month navigation
-    $currentYear = date('Y');
-    $currentMonth = date('n');
-    
-    // Check for POST navigation first, then GET, then default to current
-    if (isset($_POST['nav_year']) && isset($_POST['nav_month'])) {
-        $year = (int)$_POST['nav_year'];
-        $month = (int)$_POST['nav_month'];
-    } else {
-        $year = isset($_GET['year']) ? (int)$_GET['year'] : $currentYear;
-        $month = isset($_GET['month']) ? (int)$_GET['month'] : $currentMonth;
-    }
-    
-    // Validate month/year bounds
-    if ($month < 1) { $month = 12; $year--; }
-    if ($month > 12) { $month = 1; $year++; }
-    if ($year < 2020) { $year = 2020; }
-    if ($year > 2030) { $year = 2030; }
-    
     $bookings = getBookings($db, $_SESSION['current']->getID());
 
-    // Build day → booking map for selected month/year
+    // Build day → booking map
     $dayMap = [];
     foreach ($bookings as $b) {
-        $bookingDate = strtotime($b['booking_date']);
-        $bookingYear = (int)date('Y', $bookingDate);
-        $bookingMonth = (int)date('n', $bookingDate);
-        
-        // Only include bookings from the selected month/year
-        if ($bookingYear == (int)$year && $bookingMonth == (int)$month) {
-            $day = (int)date('j', $bookingDate);
-            $dayMap[$day] = [
-                'id' => $b['id'],
-                'desc' => htmlspecialchars($b['description'])
-            ];
-        }
+        $day = (int)date('j', strtotime($b['booking_date'])); // 1–31
+        $dayMap[$day] = [
+            'id' => $b['id'],
+            'desc' => htmlspecialchars($b['description'])
+        ];
     }
+
+    // Current month
+    $today = getdate();
+    $year = $today['year'];
+    $month = $today['mon'];
     $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
     $firstDay = mktime(0, 0, 0, $month, 1, $year);
     $startWeek = date('w', $firstDay); // 0=Sun, 6=Sat
@@ -251,39 +265,6 @@ if($_SESSION['current']->getPrivilege() > 0){
     ?>
 
     <div class="calendar">
-        <!-- Month Navigation -->
-        <div style="text-align: center; margin-bottom: 1em; display: flex; justify-content: space-between; align-items: center; max-width: 300px; margin: 0 auto 1em auto;">
-            <?php 
-                $prevMonth = $month - 1;
-                $prevYear = $year;
-                if ($prevMonth < 1) { $prevMonth = 12; $prevYear--; }
-                
-                $nextMonth = $month + 1;
-                $nextYear = $year;
-                if ($nextMonth > 12) { $nextMonth = 1; $nextYear++; }
-            ?>
-            
-            <form method="post" style="display: inline;">
-                <input type="hidden" name="nav_month" value="<?= $prevMonth ?>">
-                <input type="hidden" name="nav_year" value="<?= $prevYear ?>">
-                <button type="submit" style="background: #2196F3; color: white; padding: 0.5em 1em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                    <i class="fas fa-chevron-left"></i> Prev
-                </button>
-            </form>
-            
-            <h3 style="margin: 0; color: #1976D2; font-size: 18px;">
-                <?= date('F Y', mktime(0, 0, 0, $month, 1, $year)) ?>
-            </h3>
-            
-            <form method="post" style="display: inline;">
-                <input type="hidden" name="nav_month" value="<?= $nextMonth ?>">
-                <input type="hidden" name="nav_year" value="<?= $nextYear ?>">
-                <button type="submit" style="background: #2196F3; color: white; padding: 0.5em 1em; border: none; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                    Next <i class="fas fa-chevron-right"></i>
-                </button>
-            </form>
-        </div>
-        
         <table>
             <tr>
                 <?php foreach ($dayNames as $dn): ?>
@@ -365,12 +346,6 @@ if($_SESSION['current']->getPrivilege() > 0){
         <button id="add" style="font-size: 18px; padding: 0.7em 1.5em; background: #2196F3; color: white; border: none; cursor: pointer; border-radius: 5px;">
             <i class="fas fa-plus"></i> Add Booking
         </button>
-        
-        <?php if ($month != $currentMonth || $year != $currentYear): ?>
-            <a href="booking.php" style="display: inline-block; margin-left: 1em; font-size: 16px; padding: 0.7em 1.5em; background: #4CAF50; color: white; text-decoration: none; border-radius: 5px;">
-                <i class="fas fa-home"></i> Current Month
-            </a>
-        <?php endif; ?>
     </div>
 
     <!-- Appointment Details Modal -->
