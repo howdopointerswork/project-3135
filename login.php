@@ -6,6 +6,7 @@
         <!-- css here -->
         <link rel="stylesheet" href="css/main.css">
         <link rel="stylesheet" href="css/auth.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <script src="js/main.js"></script>
     </head>
     
@@ -13,6 +14,16 @@
         <div class="login-gradient-wrapper">
             <h1 class="auth-title login-title">Login to Your WyseCare Account</h1>
         
+            <?php
+            // Display error message if present
+            if (isset($_SESSION['error_msg'])) {
+                echo '<div style="background: #ffe6e6; border-left: 4px solid #ff4444; padding: 15px; margin: 20px auto; border-radius: 8px; max-width: 400px; color: #d32f2f;">';
+                echo '<i class="fas fa-exclamation-circle"></i> ' . htmlspecialchars($_SESSION['error_msg']);
+                echo '</div>';
+                unset($_SESSION['error_msg']); // Clear the message after displaying
+            }
+            ?>
+            
             <form action="main.php" method="post" class="signup-form">
                 <div class="signup-row">
                     <label class="signup-label" for="username">Username</label>

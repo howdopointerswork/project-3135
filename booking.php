@@ -8,6 +8,24 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Establish database connection
+$dsn = 'mysql:host=127.0.0.1;dbname=health_system_final';
+$user = 'root';
+$pw = '';
+
+try {
+    $db = new PDO($dsn, $user, $pw);
+    $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+} catch(PDOException $e) {
+    die("Database connection failed: " . $e->getMessage());
+}
+
+// Check if user is logged in
+if (!isset($_SESSION['current']) || !$_SESSION['current']) {
+    header('Location: main.php?action=login');
+    exit;
+}
+
 include('nav.php');
 
 // Debug (remove in production)
@@ -29,6 +47,15 @@ include('nav.php');
         .day-num { font-weight: bold; font-size: 16px; }
         .booking-text { font-size: 13px; margin-top: 4px; }
         .empty-day { background: #f9f9f9; }
+        
+        /* Popup Modal Styles */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); }
+        .modal-content { background-color: #fefefe; margin: 15% auto; padding: 20px; border-radius: 10px; width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+        #appointmentDetails { text-align: left; }
+        .close { color: #aaa; float: right; font-size: 24px; font-weight: bold; cursor: pointer; }
+        .close:hover { color: #000; }
+        .details-btn { background: white; color: #2196F3; border: 2px solid #2196F3; padding: 0.4em 0.8em; border-radius: 4px; cursor: pointer; font-size: 16px; margin: 0.2em; }
+        .details-btn:hover { background: #f0f8ff; }
     </style>
 </head>
 <body>
@@ -89,78 +116,47 @@ if($_SESSION['current']->getPrivilege() > 0){
 
     echo "<select name='booking' style='padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;' onmouseover='this.style.borderColor=\"#1976D2\"' onmouseout='this.style.borderColor=\"#ddd\"'>";
 
-	foreach(getAllBookings($db) as $booking){
+    foreach(getAllBookings($db) as $booking){
+        echo "<option value='" . $booking[0] . "|" . $booking[1] . "'>ID:" . $booking[0] . " - " . htmlspecialchars($booking[3]) . " (" . $booking[2] . ")</option>";
+    }
+    echo "</select>";
+    echo '</div>';
 
-	echo "<option value='" . $booking[0] . "|" . $booking[1] . "'>ID:" . $booking[0] . " - " . htmlspecialchars($booking[3]) . " (" . $booking[2] . ")</option>";
-	//	echo "<input type='hidden' name='match' value=" . $booking[1] . ">";
-
-	}
-	echo "</select>";
-
-	echo "<select name='prof'>";
-	foreach(getProfs($db) as $prof){
-
-		echo "<option value=" . $prof[0] . ">" . htmlspecialchars($prof[1]) . "</option>";		
-	}
-	echo "</select>";
-
-
-
-	   echo '</div>';
+    // Second Row - Professional and Date Selection
+    echo '<div style="display: flex; flex-direction: column;">';
+    echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-user-md"></i> Select Doctor</label>';
+    echo "<select name='prof' style='padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;' onmouseover='this.style.borderColor=\"#1976D2\"' onmouseout='this.style.borderColor=\"#ddd\"'>";
+    foreach(getProfs($db) as $prof){
+        echo "<option value=" . $prof[0] . ">" . htmlspecialchars($prof[1]) . "</option>";
+    }
+    echo "</select>";
+    echo '</div>';
 
 
     
 
 
-    // Date input
-
-
+    // Third Row - Date and Time
     echo '<div style="display: flex; flex-direction: column;">';
-
-
     echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-calendar"></i> Appointment Date</label>';
-
-
     echo '<input type="date" name="app_date" required style="padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;" onmouseover="this.style.borderColor=\'#1976D2\'" onmouseout="this.style.borderColor=\'#ddd\'">';
-
-
     echo '</div>';
-
-
-    
-
-
-    // Time input
-
 
     echo '<div style="display: flex; flex-direction: column;">';
-
-
     echo '<label style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;"><i class="fas fa-clock"></i> Appointment Time</label>';
-
-
     echo '<input type="time" name="app_time" required style="padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;" onmouseover="this.style.borderColor=\'#1976D2\'" onmouseout="this.style.borderColor=\'#ddd\'">';
-
-
     echo '</div>';
 
 
-    
-
-
-    // Submit button
-
-
+    // Fourth Row - Button aligned with doctor column
+    echo '<div></div>'; // Empty div for alignment
     echo '<div style="display: flex; align-items: end;">';
+    echo '<button type="submit" name="action" value="Confirm Appointment" style="padding: 0.8em 2em; background: #2196F3; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(33,150,243,0.3); transition: all 0.2s; display: flex; align-items: center; gap: 0.5em; width: 100%;" onmouseover="this.style.background=\'#1976D2\'; this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 6px 16px rgba(33,150,243,0.4)\'" onmouseout="this.style.background=\'#2196F3\'; this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 4px 12px rgba(33,150,243,0.3)\'">';
+    echo '<i class="fas fa-check-circle"></i> Confirm Appointment';
+    echo '</button>';
+    echo '</div>';
 
-
-    echo '<input type="submit" name="action" value="Confirm Appointment" style="padding: 0.75em 1.5em; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(33,150,243,0.3); transition: all 0.2s; width: 100%;" onmouseover="this.style.transform=\'translateY(-2px)\'; this.style.boxShadow=\'0 6px 16px rgba(33,150,243,0.4)\'" onmouseout="this.style.transform=\'translateY(0)\'; this.style.boxShadow=\'0 4px 12px rgba(33,150,243,0.3)\'">';
-
-
-   
-
-
-	echo '</form>';
+    echo '</form>';
 
      echo '</div>';
 }
@@ -170,19 +166,47 @@ if($_SESSION['current']->getPrivilege() > 0){
 	?>
 
     <!-- Add Booking Form (Hidden by Default) -->
-    <div id="booking_system" style="display: none; background: #f4f4f4; padding: 1.5rem; margin: 1rem auto; max-width: 500px; border: 1px solid #ccc;">
-        <form method='post' action='main.php'>
+    <div id="booking_system" style="display: none; background: #fff; padding: 2em; margin: 2em auto; max-width: 600px; border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,0.12);">
+        <h2 style="color: #1976D2; margin-bottom: 1.5em; display: flex; align-items: center; gap: 0.5em;">
+            <i class="fas fa-calendar-plus"></i> Add New Booking
+        </h2>
+        
+        <form method='post' action='main.php' style="display: grid; gap: 1.2em;">
             <input type="hidden" name="userid" value="<?php echo $_SESSION['current']->getID(); ?>">
 
-            <label for="booking_date">Date</label><br>
-            <input type="date" name="booking_date" required style="width: 100%; padding: 0.5em; margin-bottom: 1em;"><br>
+            <div style="display: flex; flex-direction: column;">
+                <label for="booking_date" style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;">
+                    <i class="fas fa-calendar"></i> Select Date
+                </label>
+                <input type="date" name="booking_date" id="booking_date" required 
+                       style="padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s;" 
+                       onmouseover="this.style.borderColor='#1976D2'" onmouseout="this.style.borderColor='#ddd'">
+            </div>
 
-            <label for="description">Description</label><br>
-            <textarea name="description" rows="3" style="width: 100%; padding: 0.5em; margin-bottom: 1em;"></textarea><br>
+            <div style="display: flex; flex-direction: column;">
+                <label for="description" style="font-weight: 600; color: #333; margin-bottom: 0.5em; font-size: 14px;">
+                    <i class="fas fa-file-alt"></i> Description
+                </label>
+                <textarea name="description" id="description" rows="4" 
+                          style="padding: 0.75em; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; background: #f8f9fa; transition: all 0.2s; resize: vertical;" 
+                          placeholder="Enter booking details..." 
+                          onmouseover="this.style.borderColor='#1976D2'" onmouseout="this.style.borderColor='#ddd'"></textarea>
+            </div>
 
-            <input type="submit" name="action" value="Add Booking" class="manage-btn">
+            <div style="display: flex; gap: 1em; justify-content: flex-end; margin-top: 1em;">
+                <button type="button" id="cancel" 
+                        style="padding: 0.75em 1.5em; background: #f5f5f5; color: #666; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.2s;" 
+                        onmouseover="this.style.background='#e0e0e0'" onmouseout="this.style.background='#f5f5f5'">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+                
+                <button type="submit" name="action" value="Add Booking" 
+                        style="padding: 0.75em 1.5em; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px rgba(33,150,243,0.3); transition: all 0.2s;" 
+                        onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(33,150,243,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(33,150,243,0.3)'">
+                    <i class="fas fa-plus"></i> Add Booking
+                </button>
+            </div>
         </form>
-        <button id="cancel" style="font-size: 16px; padding: 0.5em; margin-top: 0.5em;">Cancel</button>
     </div>
 
     <!-- Calendar Display -->
@@ -231,9 +255,11 @@ if($_SESSION['current']->getPrivilege() > 0){
                 }
 
                 $booking = $dayMap[$day] ?? null;
+                $isConfirmed = $booking && checkAppointments($db, $_SESSION['current']->getID(), $booking['id']);
                 $cellClass = $booking ? '' : 'empty-day';
+                $cellStyle = $isConfirmed ? 'background: #4CAF50; color: white;' : '';
 
-                echo "<td class='$cellClass'>";
+                echo "<td class='$cellClass' style='$cellStyle'>";
                 echo "<div class='day-num'>$day</div>";
 
                 if ($booking) {
@@ -254,7 +280,8 @@ if($_SESSION['current']->getPrivilege() > 0){
 		    echo "</form>";
 		    }else{
 
-			echo '<p style="color: green">Appointment Confirmed</p>';
+			echo '<p style="color: white; font-weight: bold;">Appointment Confirmed</p>';
+			echo '<button class="details-btn" onclick="showAppointmentDetails(' . $booking['id'] . ')">See Details</button>';
 		    }
 
 
@@ -285,9 +312,18 @@ if($_SESSION['current']->getPrivilege() > 0){
 
     <!-- Add Booking Button -->
     <div style="text-align: center; margin: 2rem;">
-        <button id="add" style="font-size: 18px; padding: 0.7em 1.5em; background: #2196F3; color: white; border: none; cursor: pointer;">
-            Add Booking
+        <button id="add" style="font-size: 18px; padding: 0.7em 1.5em; background: #2196F3; color: white; border: none; cursor: pointer; border-radius: 5px;">
+            <i class="fas fa-plus"></i> Add Booking
         </button>
+    </div>
+
+    <!-- Appointment Details Modal -->
+    <div id="appointmentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 style="color: #1976D2; margin-bottom: 1em;"><i class="fas fa-calendar-check"></i> Appointment Details</h2>
+            <div id="appointmentDetails"></div>
+        </div>
     </div>
 
     <script>
@@ -298,6 +334,37 @@ if($_SESSION['current']->getPrivilege() > 0){
         document.getElementById('cancel').addEventListener('click', function () {
             document.getElementById('booking_system').style.display = 'none';
         });
+
+        function showAppointmentDetails(bookingId) {
+            // AJAX call to get appointment details
+            fetch('main.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: 'action=get_appointment_details&booking_id=' + bookingId
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('appointmentDetails').innerHTML = data;
+                document.getElementById('appointmentModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading appointment details');
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('appointmentModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            if (event.target == document.getElementById('appointmentModal')) {
+                closeModal();
+            }
+        }
     </script>
 
 </body>

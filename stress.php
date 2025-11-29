@@ -558,7 +558,11 @@ $justLoggedHighStress = (isset($_POST['action']) && $_POST['action'] === 'Save S
             <input type="hidden" name="user_id" value="<?php echo $_SESSION['current']->getID(); ?>">
 
             <p style="text-align: center; font-size: 20px; margin: 1em 0;">
-                <strong>Today:</strong> <?php echo date('y-m-d') . ', ' . date('D'); //. new DateTime('yesterday'); ?>
+                <strong>Today:</strong> 
+                <?php 
+                //echo $_SESSION['date']; 
+                echo date('y-m-d') . ', ' . date('D'); 
+                ?>
             </p>
 
             <div class="stress-scale">

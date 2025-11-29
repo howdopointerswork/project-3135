@@ -129,17 +129,13 @@
         $stmnt->bindValue(":val2", $values[1]);
         $stmnt->bindValue(":val3", $values[2]);
         $stmnt->bindValue(":val4", $values[3]);
+       
+   
+        $stmnt->bindValue(":val5", 1);
+      
 
-        if($values[4] == "on"){
-
-            $stmnt->bindValue(":val5", 1);
-        }else{
-
-            $stmnt->bindValue(":val5", 0);
-        }
-
-	$stmnt->bindValue(":val0", $id);
-	$stmnt->bindValue(":val6", $date);
+		$stmnt->bindValue(":val0", $id);
+		$stmnt->bindValue(":val6", $date);
 
 
         $stmnt->execute();
@@ -474,40 +470,19 @@
 	
 	function checkAppointments($db, $uid, $bid) : bool{
 
-		$qry = 'SELECT * FROM appointments WHERE user_id = :uid AND booking_id = :bid';
+		$qry = 'SELECT COUNT(*) as count FROM appointments WHERE user_id = :uid AND booking_id = :bid';
 
 		$stmnt = $db->prepare($qry);
 
-		$stmnt->bindValue(':uid', $uid);
-		$stmnt->bindValue(':bid', $bid);
+		$stmnt->bindValue(':uid', $uid, PDO::PARAM_INT);
+		$stmnt->bindValue(':bid', $bid, PDO::PARAM_INT);
 
 		$stmnt->execute();
 
-		$apt = $stmnt->fetchAll();
+		$result = $stmnt->fetch();
 
-		
-		$qry = 'SELECT * FROM booking WHERE userid = :uid AND id = :bid';
-
-		$stmnt = $db->prepare($qry);
-
-		$stmnt->bindValue(':uid', $uid);
-		$stmnt->bindValue(':bid', $bid);
-
-		$stmnt->execute();
-
-		$bkg = $stmnt->fetchAll();
-		
-	//	echo var_dump($apt);
-
-		//	return $apt['booking_id'] === $bkg['id'] ? true : false;
-		if(!empty($apt) && !empty($bkg)){
-			if($apt[0][3] === $bkg[0][0]){
-				return true;
-			}
-		}	
-		return false;
-
-
+		// Return true if there's at least one appointment record for this user and booking
+		return $result['count'] > 0;
 	}	
 
 
@@ -593,6 +568,21 @@ function getStressLevel($db, $id) {
     $stmt->bindValue(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
     return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+function getAppointmentDetailsByBooking($db, $bookingId){
+
+	$qry = "SELECT a.*, p.name as professional_name, b.description 
+	         FROM appointments a 
+	         JOIN professionals p ON a.professional_id = p.id 
+	         JOIN booking b ON a.booking_id = b.id 
+	         WHERE a.booking_id = :booking_id";
+
+	$stmnt = $db->prepare($qry);
+	$stmnt->bindValue(':booking_id', $bookingId);
+	$stmnt->execute();
+
+	return $stmnt->fetch(PDO::FETCH_ASSOC);
 }
 
 ?>

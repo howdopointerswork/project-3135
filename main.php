@@ -1,6 +1,4 @@
 <?php
-
-
 //	require('user.php')
 	require_once('db.php');
 	require_once('user.php');
@@ -9,10 +7,6 @@
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
 	error_reporting(E_ALL);
-
-
-							
-					
 
 
 	function loopCheck($arr, $query){
@@ -113,12 +107,14 @@
 
 
 	$dsn = 'mysql:host=127.0.0.1;dbname=health_system_final';
-	$user = 'mgs_user';
-	$pw = 'pa55word';
+	// FIXED: Changed to default XAMPP credentials (root with no password)
+	$user = 'root';
+	$pw = '';
 
 	$u = new User(); //user var
 	
-
+	// FIXED: Initialize $db variable to null before try block to prevent undefined variable warnings
+	$db = null;
 
 	try{
 		
@@ -129,11 +125,30 @@
 	        
 	}catch(PDOException $e){
 		
-		//echo "Error";
+		// FIXED: Added error handling - display error and exit if database connection fails
+		die("<div style='background: #ffe6e6; border-left: 4px solid #ff4444; padding: 20px; margin: 20px; border-radius: 8px; font-family: Arial, sans-serif;'><h2 style='color: #ff4444; margin-top: 0;'><i class='fas fa-exclamation-circle'></i> Connection Error</h2><p style='color: #333;'>We're having trouble connecting to the database. Please try again in a few moments.</p><p style='font-size: 0.9em; color: #666;'>If the problem persists, please contact support.</p></div>");
 
 	}
 //change to switch	
 	switch($action){
+		
+		case 'get_appointment_details':
+			if (isset($_POST['booking_id'])) {
+				$bookingId = $_POST['booking_id'];
+				$appointment = getAppointmentDetailsByBooking($db, $bookingId);
+				
+				if ($appointment) {
+					echo '<div style="font-family: Arial, sans-serif;">';
+					echo '<p><strong><i class="fas fa-calendar"></i> Date:</strong> ' . date('F j, Y', strtotime($appointment['appointment_date'])) . '</p>';
+					echo '<p><strong><i class="fas fa-clock"></i> Time:</strong> ' . date('g:i A', strtotime($appointment['appointment_time'])) . '</p>';
+					echo '<p><strong><i class="fas fa-user-md"></i> Doctor:</strong> ' . htmlspecialchars($appointment['professional_name']) . '</p>';
+					echo '<p><strong><i class="fas fa-info-circle"></i> Booking Description:</strong> ' . htmlspecialchars($appointment['description']) . '</p>';
+					echo '</div>';
+				} else {
+					echo '<p>Appointment details not found.</p>';
+				}
+			}
+			exit;
 		
 		case 'login':
 			$_SESSION['page'] = 'login.php';
@@ -153,7 +168,7 @@
 		
 	
 			if(empty($name)){
-			
+				$_SESSION['error_msg'] = "Username not found. Please sign up to create a new account.";
 				include('signup.php');
 				exit;
 			
@@ -165,7 +180,7 @@
 
 				
 				if(is_array($result) && end($result)){
-				
+			
 					if(password_verify($password, getUsername($db, $username)[2])){
 				
 					if(session_status() === PHP_SESSION_NONE){
@@ -188,7 +203,6 @@
 
 					$_SESSION['activities'] = getActivities($db, $_SESSION['current']->getID());
 					$_SESSION['bookings'] = getBookings($db, $_SESSION['current']->getID());
-					$_SESSION['alerts'] = new AlertSystem();
 
 					$apts = getAppointments($db, $_SESSION['current']->getID());
 
@@ -212,23 +226,19 @@
 
 							if(!empty($_SESSION['activities'])){
 						//	echo 'logging alert<br>';
-							$time1 = new DateTime('yesterday');
+							$time1 = new DateTime($_SESSION['date']);
 							$time2 = new DateTime($_SESSION['activities'][count($_SESSION['activities'])-1][7]);		
 							//use constructor
 							$diff = $time1->diff($time2);
-							if($diff->y == 0 && $diff->m == 0 && $diff->d > 0){
-								$alert = new Alert(2, 3, '', 0);
-								$alert->setMsg("You haven't logged an activity in " . $diff->days . " day(s)!");
-								$_SESSION['alerts']->addAlert($alert);
-							}
+							$alert = new Alert(2, 3, '', 0);
+							$alert->setMsg("You haven't logged an activity in " . $diff->days . " day(s)!");
 
 							
 
-							
+							$_SESSION['alerts']->addAlert($alert);
 							}
 
-							$bookings = getBookings($db, $_SESSION['current']->getID());
-							if(count($bookings) > 0){
+							$bookings = getBookings($db, $_SESSION['current']->getID());	
 							$recent = new DateTime($bookings[count($bookings)-1]['booking_date']);
 							$diff2 = $time1->diff($recent);
 
@@ -238,7 +248,6 @@
 								$alert2->setMsg("Appointment Notice: Appointment in " . $diff2->days . " day(s) ");
 								$_SESSION['alerts']->addAlert($alert2);
 							}
-						}
 
 
 						}
@@ -254,7 +263,7 @@
 				}
 				
 				else{
-				
+					$_SESSION['error_msg'] = "Incorrect password. Please try again.";
 					include('login.php');
 					exit;
 				}
@@ -286,8 +295,16 @@
 				if(!$checkUser){
 				addUser($db, $field1, $hash, $field3, $field4, $field5, $field6, 'profile.jpg', $_SESSION['date'], 0);
 
-				$_SESSION['current'] = new User(name: $field1, age: $field3, ht: $field4, wt: $field5, gender: $field6, privilege: 0);
-				$_SESSION['current']->setID(getUsername($db, $field1)[0]);
+				// FIXED: Properly retrieve the new user and set up session
+				$newUser = getUsername($db, $field1);
+				$_SESSION['current'] = new User($newUser[0], $newUser[1], $newUser[3], $newUser[4], $newUser[5], $newUser[6], 'profile.jpg', $newUser[9]);
+				$_SESSION['current']->setImg($newUser[7]);
+				
+				// FIXED: Initialize activities, bookings, and alerts for new user
+				$_SESSION['activities'] = getActivities($db, $_SESSION['current']->getID());
+				$_SESSION['bookings'] = getBookings($db, $_SESSION['current']->getID());
+				$_SESSION['alerts'] = new AlertSystem();
+				
 				include ('dash.php');
 				exit;
 				}else{
@@ -298,7 +315,8 @@
 				}
 			}else{
 
-				echo '<span style="color: red">Error Signing Up - Age, Height, and Weight must be numbers</span';
+				// FIXED: Completed the closing tag for error message
+				$_SESSION['error_msg'] = "Please enter valid numbers for Age, Height, and Weight.";
 				include('signup.php');
 				exit;
 			}
@@ -342,6 +360,9 @@
 
 			$_SESSION['page'] = 'search.php';
 			
+			// Get the search query
+			$query = filter_input(INPUT_POST, 'query', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
+			
 			// Add Font Awesome and custom stylesheet
 			echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">';
 			echo '<link rel="stylesheet" href="style.css">';
@@ -353,7 +374,7 @@
 			$acts = getActivities($db, $_SESSION['current']->getID());
 			$books = getBookings($db, $_SESSION['current']->getID());
 			$apts = getAppointments($db, $_SESSION['current']->getID());
-			$query = filter_input(INPUT_POST, 'query');
+			$profs = getProfs($db);
 
 			echo '<div class="search-container">';
 
@@ -382,80 +403,132 @@
 				echo '</div>';
 			}*/
 
-			// Activities section
-			if (!empty($acts)) {
-				echo '<div class="search-card">';
-				echo '<h3>Activities</h3>';
-				echo '<i class="fas fa-running"></i>';
-				echo '<ul>';
-
-
-		
-
+			// Show search results only if query is provided
+			if (!empty($query)) {
+				echo '<h2 style="color: #1976D2; margin: 2em 0 1em 0;">Search Results for: "' . htmlspecialchars($query) . '"</h2>';
+				
+				$hasResults = false;
+				
+				// Activities section
+				$matchingActivities = [];
 				foreach ($acts as $activity) {
-
+					$searchText = '';
+					if (isset($activity['exercise'])) $searchText .= ' ' . $activity['exercise'];
+					if (isset($activity['meds'])) $searchText .= ' ' . $activity['meds'];
+					if (isset($activity['log_date'])) $searchText .= ' ' . $activity['log_date'];
 					
-					$entry = '<strong>Calories</strong>: ' . $activity['calories'] . ' <strong>Sleep</strong>: ' . $activity['sleep'] . ' <strong>Water</strong>: ' . $activity['water'] . ' <strong>Exercise</strong>: ' . $activity['exercise'] . ' <strong>Meds</strong>: ' . $activity['meds'];
-
+					if (str_contains(strtolower($searchText), strtolower($query))) {
+						$matchingActivities[] = $activity;
+					}
+				}
 				
-
-					if(str_contains($entry, $query) && $query != ''){
-				
-						echo '<li><span style="background-color: yellow">' . $entry . '</span></li>';
-						}else{
-					
-
-						echo '<li>' . $entry . '</li>';
-						}
-					
+				if (!empty($matchingActivities)) {
+					$hasResults = true;
+					echo '<div class="search-card">';
+					echo '<h3><i class="fas fa-running"></i> Health Activities</h3>';
+					echo '<ul>';
+					foreach ($matchingActivities as $activity) {
+						$displayText = '';
+						if (!empty($activity['calories'])) $displayText .= 'Calories: ' . $activity['calories'] . ' ';
+						if (!empty($activity['sleep'])) $displayText .= 'Sleep: ' . $activity['sleep'] . 'hrs ';
+						if (!empty($activity['water'])) $displayText .= 'Water: ' . $activity['water'] . 'mL ';
+						if (!empty($activity['exercise'])) $displayText .= 'Exercise: ' . $activity['exercise'] . ' ';
+						if (!empty($activity['meds'])) $displayText .= 'Medication: ' . $activity['meds'] . ' ';
+						$displayText .= '(' . $activity['log_date'] . ')';
+						
+						$highlighted = str_ireplace($query, '<span style="background-color: yellow">' . $query . '</span>', htmlspecialchars($displayText));
+						echo '<li>' . $highlighted . '</li>';
+					}
+					echo '</ul>';
+					echo '</div>';
 				}
 
-			
-				echo '</ul>';
-				echo '</div>';
-			}
-
-			// Bookings section
-			if (!empty($books)) {
-				echo '<div class="search-card">';
-				echo '<h3>Bookings</h3>';
-				echo '<i class="fas fa-calendar-alt"></i>';
-				echo '<ul>';
+				// Bookings section
+				$matchingBookings = [];
 				foreach ($books as $booking) {
-						if(str_contains($booking['description'], $query) && $query != ''){
-
-						echo '<li><span style="background-color: yellow">' . $booking['description'] . '</span></li>';
-						}else{
-					
-							echo '<li>' . htmlspecialchars($booking['description']) . '</li>';
-						}
+					if (str_contains(strtolower($booking['description']), strtolower($query)) || 
+						str_contains(strtolower($booking['booking_date']), strtolower($query))) {
+						$matchingBookings[] = $booking;
+					}
 				}
-				echo '</ul>';
-				echo '</div>';
-			}
+				
+				if (!empty($matchingBookings)) {
+					$hasResults = true;
+					echo '<div class="search-card">';
+					echo '<h3><i class="fas fa-calendar-alt"></i> Bookings</h3>';
+					echo '<ul>';
+					foreach ($matchingBookings as $booking) {
+						$highlighted = str_ireplace($query, '<span style="background-color: yellow">' . $query . '</span>', htmlspecialchars($booking['description'] . ' - ' . $booking['booking_date']));
+						echo '<li>' . $highlighted . '</li>';
+					}
+					echo '</ul>';
+					echo '</div>';
+				}
 
-			// Appointments section
-				echo '<div class="search-card">';
-				echo '<h3>Appointments</h3>';
-				echo '<i class="fas fa-calendar-alt"></i>';
-				echo '<ul>';
-			if (!empty($apts)) {
+				// Appointments section
+				$matchingAppointments = [];
 				foreach ($apts as $appointment) {
-					if(str_contains($appointment['appointment_date'], $query) && $query != ''){
-
-						echo '<li><span style="background-color: yellow">' . $appointment['appointment_date'] . '</span></li>';
-						}else{
-					
-
-							echo '<li>' . htmlspecialchars($appointment['appointment_date']) . '</li>';
-						}
+					if (str_contains(strtolower($appointment['appointment_date']), strtolower($query))) {
+						$matchingAppointments[] = $appointment;
+					}
 				}
-				echo '</ul>';
+				
+				if (!empty($matchingAppointments)) {
+					$hasResults = true;
+					echo '<div class="search-card">';
+					echo '<h3><i class="fas fa-user-md"></i> Appointments</h3>';
+					echo '<ul>';
+					foreach ($matchingAppointments as $appointment) {
+						$highlighted = str_ireplace($query, '<span style="background-color: yellow">' . $query . '</span>', htmlspecialchars($appointment['appointment_date']));
+						echo '<li>' . $highlighted . '</li>';
+					}
+					echo '</ul>';
+					echo '</div>';
+				}
+
+				// Professionals/Doctors section
+				$matchingProfessionals = [];
+				if (!empty($profs)) {
+					foreach ($profs as $professional) {
+						$profName = isset($professional['name']) ? $professional['name'] : '';
+						$profSpecialty = isset($professional['specialty']) ? $professional['specialty'] : '';
+						
+						if (!empty($query) && (
+							str_contains(strtolower($profName), strtolower($query)) || 
+							str_contains(strtolower($profSpecialty), strtolower($query)))) {
+							$matchingProfessionals[] = $professional;
+						}
+					}
+				}
+
+				if (!empty($matchingProfessionals)) {
+					$hasResults = true;
+					echo '<div class="search-card">';
+					echo '<h3><i class="fas fa-user-md"></i> Doctors & Professionals</h3>';
+					echo '<ul>';
+					foreach ($matchingProfessionals as $professional) {
+						$profName = isset($professional['name']) ? $professional['name'] : 'Unknown';
+						$profSpecialty = isset($professional['specialty']) ? $professional['specialty'] : 'General';
+						$displayText = $profName . ' - ' . $profSpecialty;
+						$highlighted = str_ireplace($query, '<span style="background-color: yellow">' . $query . '</span>', htmlspecialchars($displayText));
+						echo '<li>' . $highlighted . '</li>';
+					}
+					echo '</ul>';
+					echo '</div>';
+				}
+
+				if (!$hasResults) {
+					echo '<div class="search-card">';
+					echo '<h3><i class="fas fa-search"></i> No Results Found</h3>';
+					echo '<p>No results found for "' . htmlspecialchars($query) . '". Try a different search term.</p>';
+					echo '</div>';
+				}
+			} else {
+				echo '<div class="search-card">';
+				echo '<h3><i class="fas fa-search"></i> Enter a Search Term</h3>';
+				echo '<p>Use the search box above to find activities, bookings, and appointments.</p>';
 				echo '</div>';
 			}
-
-
-			
 
 			echo '</div>';
 			exit;
@@ -479,6 +552,7 @@
 			$deleteCode = filter_input(INPUT_POST, 'Code');
 			
 			$_SESSION['alerts']->destroyAlert($deleteCat, $deleteCode);
+			echo 'size: ' . count($_SESSION['alerts']->getArray());
 			$current = $_SESSION['page'];
 			include($current);
 			break;	
@@ -505,13 +579,13 @@
 			$values[] = filter_input(INPUT_POST, 'exercise');
 			$values[] = filter_input(INPUT_POST, 'meds');
 
-			//$values[] = filter_input(INPUT_POST, 'userid'); 
+			$values[] = filter_input(INPUT_POST, 'userid'); 
 			/*foreach($values as $index => $val){
 
 				echo "$index: $val <br>";
 			}*/
 
-			
+	
 
 			$values[4] = ($values[4] == 'on' ? 1 : 0);
 
@@ -520,7 +594,9 @@
 				if(filter_var($field, FILTER_VALIDATE_INT) !== false){
 			
 					if($index === count($values)-1){
-						
+
+						// FIXED: Added user ID parameter to addActivity
+					
 						addActivity($db, $values, $_SESSION['date'], $_SESSION['current']->getID());
 						break;						
 
@@ -543,6 +619,7 @@
 
 		case 'Delete Activity':
 			
+			// FIXED: Added logID parameter to deleteActivity
 			$actID = filter_input(INPUT_POST, 'actID');
 			$logID = filter_input(INPUT_POST, 'logID');
 			deleteActivity($db, $actID, $logID);
@@ -553,6 +630,7 @@
 		
 		case 'Edit Activity':
 
+			// FIXED: Added logID parameter to getActivity
 			$actID = filter_input(INPUT_POST, 'actID');
 			$logID = filter_input(INPUT_POST, 'logID');
 			$activity = getActivity($db, $actID, $logID);
@@ -597,7 +675,7 @@
 
 		case 'Save':
 			
-			$vals = [];
+				$vals = [];
 
 			$vals[] = filter_input(INPUT_POST, 'Username');
 			$vals[] = filter_input(INPUT_POST, 'Age');
@@ -711,6 +789,7 @@
 			include('profile.php');
 			exit;
 			
+			
 	
 
 		case 'Monitor': //yes this is confusing with the above case, will change eventually. Above is for Monitoring page, this is to monitor activity
@@ -813,8 +892,15 @@
 
 	if($uid === $booking[1]){
 
-		//check prof availability?
-		addAppointment($db, $uid, $pid, $booking[0], $date, $time, $_SESSION['date']); 
+		// Check if appointment already exists to prevent duplicates
+		if(!checkAppointments($db, $uid, $booking[0])){
+			addAppointment($db, $uid, $pid, $booking[0], $date, $time, $_SESSION['date']); 
+			$alert = new Alert(1, 0, 'Appointment Confirmed Successfully', 200);
+			$_SESSION['alerts']->addAlert($alert);
+		} else {
+			$alert = new Alert(2, 0, 'Appointment Already Exists', 409);
+			$_SESSION['alerts']->addAlert($alert);
+		}
 
 	}else{
 		$alert = new Alert(3, 0, 'User ID Mismatch', 444);

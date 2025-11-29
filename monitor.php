@@ -56,31 +56,56 @@
 		//	echo "Today is: " . $_SESSION['date'] . "<br>"; 
 			$arr = ['BMI', 'Calories', 'Sleep', 'Water', 'Exercise', 'Medication'];
 
-			echo '<form method="post" action="main.php">';		
+			echo '<form method="post" action="main.php" style="margin: 2em auto; max-width: 600px;">';		
 
-			echo '<span style="font-size: 24px;">Attribute to Monitor:</span> 
-				<select name="toMonitor" style="font-size: 24px; margin: 0 auto;">';
+			echo '<div style="margin-bottom: 2em;">';
+			echo '<label style="font-size: 20px; font-weight: 600; display: block; margin-bottom: 0.5em;">Select Attribute to Monitor:</label>';
+			echo '<select name="toMonitor" id="monitorSelect" style="font-size: 18px; padding: 0.5em; width: 100%; border: 2px solid #ddd; border-radius: 8px;">';
 			
 			foreach($arr as $item){
-
-				echo "<option value=$item>$item</option>";
+				echo "<option value='$item'>$item</option>";
 			}
-	
 			
-
 			echo '</select>';
+			echo '</div>';
 
+			echo '<div style="margin-bottom: 2em;">';
+			echo '<label id="thresholdLabel" style="font-size: 18px; font-weight: 600; display: block; margin-bottom: 0.5em;">Enter the number of Calories you want to track:</label>';
+			echo '<input type="number" name="threshold" placeholder="Enter threshold value" required min="0" step="0.01" style="font-size: 18px; padding: 0.5em; width: 100%; border: 2px solid #ddd; border-radius: 8px;">';
+			echo '</div>';
 
-			echo "<br>";
-
-			echo '<input type="text" name="threshold">';
-
-
-			echo "<br>";
-
-			echo '<input type="submit" name="action" value="Monitor">';
+			echo '<input type="submit" name="action" value="Monitor" style="font-size: 18px; padding: 0.75em 2em; background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; box-shadow: 0 4px 12px rgba(33,150,243,0.3);">';
 
 			echo '</form>';
+			
+			// ADDED: JavaScript to dynamically update the threshold label based on selected attribute
+			echo '<script>
+				document.getElementById("monitorSelect").addEventListener("change", function() {
+					var selected = this.value;
+					var label = document.getElementById("thresholdLabel");
+					
+					switch(selected) {
+						case "BMI":
+							label.textContent = "Enter your target BMI value:";
+							break;
+						case "Calories":
+							label.textContent = "Enter the number of Calories you want to track:";
+							break;
+						case "Sleep":
+							label.textContent = "Enter the number of hours of Sleep you want to track:";
+							break;
+						case "Water":
+							label.textContent = "Enter the amount of Water (oz) you want to track:";
+							break;
+						case "Exercise":
+							label.textContent = "Enter the number of minutes of Exercise you want to track:";
+							break;
+						case "Medication":
+							label.textContent = "Enter the number of times you take Medication you want to track:";
+							break;
+					}
+				});
+			</script>';
 
 
 			$avg = 0;
@@ -111,7 +136,7 @@
 				if($monitor[0] > 0){
 					echo '<div>';
 					echo "<p style='font-size: 24px'><br>Currently Monitoring: " . $arr[$cat] . "<br></p>"; 
-					echo "<span id='avg'>Current Average: $avg</span>";
+					echo "<span id='avg'>Current Average: " . number_format($avg,2) . "</span>";
 					echo '</div>';
 				}
 			}else{
@@ -157,7 +182,8 @@
 
 				
 
-			if((isset($avg) && isset($monitor)) && (number_format($avg,0) != number_format($monitor[3],0) || !isset($monitor[3]))){
+			// FIXED: Added null check before using number_format to prevent deprecated warning
+			if((isset($avg) && isset($monitor)) && (number_format($avg ?? 0, 0) != number_format($monitor[3] ?? 0, 0) || !isset($monitor[3]))){
 
 				
 				//check if second cond is true, if so, send alert
@@ -253,7 +279,7 @@
 				
 			}
 			}else{
-				echo "You have nothing to monitor - please log activities or book an appointment";
+				echo '<div style="background: #fff9e6; border-left: 4px solid #ffa500; padding: 20px; margin: 20px auto; border-radius: 8px; max-width: 600px; text-align: left;"><h3 style="color: #ff8c00; margin-top: 0;"><i class="fas fa-info-circle"></i> No Data to Monitor Yet</h3><p style="color: #333;">To start monitoring your health, you need to:</p><ul style="color: #555;"><li>Log some activities in your dashboard, or</li><li>Book an appointment with a healthcare provider</li></ul><p style="color: #666; font-size: 0.9em;">Once you have some data, you\'ll be able to track your progress here!</p></div>';
 			}
 				
 			$sumCals = getSum($db, $_SESSION['current']->getID(), 'calories');

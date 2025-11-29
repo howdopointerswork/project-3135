@@ -11,6 +11,15 @@ include 'inc/header.php';
 $time = date('YYYY-mm-dd');
 
 echo "<h1 class='auth-title login-title'>Create Your WyseCare Account</h1>";
+
+// Display error message if present
+if (isset($_SESSION['error_msg'])) {
+	echo '<div style="background: #ffe6e6; border-left: 4px solid #ff4444; padding: 15px; margin: 20px auto; border-radius: 8px; max-width: 400px; color: #d32f2f;">';
+	echo '<i class="fas fa-exclamation-circle"></i> ' . htmlspecialchars($_SESSION['error_msg']);
+	echo '</div>';
+	unset($_SESSION['error_msg']); // Clear the message after displaying
+}
+
 $fields = ['Username', 'Password', 'Age', 'Height', 'Weight', 'Gender'];
 
 echo "<form class='signup-form' method='post' action='main.php'>";
