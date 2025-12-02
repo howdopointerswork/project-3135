@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['newsletter_submit']))
 
 <!-- Footer partial: include this from pages. -->
 <!-- Prefer to add the stylesheet in the site header; fallback link here. -->
-<link rel="stylesheet" href="/project-3135/css/footer.css">
+<link rel="stylesheet" href="css/footer.css">
 <!-- Use Font Awesome CDN CSS so icons load without a kit ID -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
